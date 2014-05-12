@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ivy-module version="2.2"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="${ivy.organisation}" module="${ivy.module}" />
+	<configurations>
+		<conf name="default" />
+		<conf name="compile" extends="default" />
+		<conf name="test" extends="compile, runtime" />
+		<conf name="runtime" />
+		<conf name="sources" description="Source code"/>
+        <conf name="javadoc" description="Javadocs"/>
+	</configurations>
+	<publications>
+		<artifact name="${ivy.module}" type="jar" />
+	</publications>	
+	<dependencies>
+		<dependency org="com.thoughtworks.xstream" name="xstream" rev="${xstream.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="xom" name="xom" rev="${xom.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="net.sf.opencsv" name="opencsv" rev="${opencsv.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="commons-io" name="commons-io" rev="${commons-io.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="commons-lang" name="commons-lang" rev="${commons-lang.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="org.apache.commons" name="commons-lang3" rev="${commons-lang3.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="commons-beanutils" name="commons-beanutils" rev="${commons-beanutils.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="commons-httpclient" name="commons-httpclient" rev="${commons-httpclient.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="net.sf.ezmorph" name="ezmorph" rev="${ezmorph.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="org.jyaml" name="jyaml" rev="${jyaml.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="net.java.dev" name="jvyaml" rev="${jvyaml.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="org.yaml" name="snakeyaml" rev="${snakeyaml.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="com.esotericsoftware.yamlbeans" name="yamlbeans" rev="${yamlbeans.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="log4j" name="log4j" rev="${log4j.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="org.kohsuke.stapler" name="json-lib" rev="${json-lib.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="junit" name="junit" rev="${junit.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="net.sourceforge.javacsv" name="javacsv" rev="${javacsv.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="mysql" name="mysql-connector-java" rev="${mysql-connector-java.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="org.xerial" name="sqlite-jdbc" rev="${sqlite-jdbc.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="org.mybatis" name="mybatis" rev="${mybatis.version}" conf="compile->default;sources;javadoc"/>   
+		<dependency org="net.sourceforge.argparse4j" name="argparse4j" rev="${argparse4j.version}" conf="compile->default;sources;javadoc"/>                   
+	</dependencies>
+</ivy-module>

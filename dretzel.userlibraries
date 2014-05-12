@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="WINDOWS-1252"?><eclipse-userlibraries version="2">
+    <library name="CROSSDATAWRAPPER_LIBS" systemlibrary="true">
+        <archive path="/crossdatawrapper/lib/compile/jvyaml-0.2.1.jar"/>
+        <archive javadoc="jar:platform:/resource/crossdatawrapper/lib/javadoc/commons-beanutils-1.8.0-javadoc.jar!/" path="/crossdatawrapper/lib/compile/commons-beanutils-1.8.0.jar" source="/crossdatawrapper/lib/sources/commons-beanutils-1.8.0-sources.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/commons-codec-1.2.jar"/>
+        <archive javadoc="jar:platform:/resource/crossdatawrapper/lib/javadoc/commons-collections-3.2.1-javadoc.jar!/" path="/crossdatawrapper/lib/compile/commons-collections-3.2.1.jar" source="/crossdatawrapper/lib/sources/commons-collections-3.2.1-sources.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/commons-httpclient-3.1.jar" source="/crossdatawrapper/lib/sources/commons-httpclient-3.1-sources.jar"/>
+        <archive javadoc="jar:platform:/resource/crossdatawrapper/lib/javadoc/commons-io-2.4-javadoc.jar!/" path="/crossdatawrapper/lib/compile/commons-io-2.4.jar" source="/crossdatawrapper/lib/javadoc/commons-io-2.4-sources.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/commons-lang-2.6.jar"/>
+        <archive javadoc="jar:platform:/resource/crossdatawrapper/lib/javadoc/sqlite-jdbc-3.7.2-javadoc.jar!/" path="/crossdatawrapper/lib/compile/commons-lang3-3.1.jar" source="/crossdatawrapper/lib/sources/sqlite-jdbc-3.7.2-sources.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/commons-logging-1.1.1.jar"/>
+        <archive javadoc="jar:platform:/resource/crossdatawrapper/lib/javadoc/ezmorph-1.0.6-javadoc.jar!/" path="/crossdatawrapper/lib/compile/ezmorph-1.0.6.jar" source="/crossdatawrapper/lib/sources/ezmorph-1.0.6-sources.jar"/>
+        <archive javadoc="jar:platform:/resource/crossdatawrapper/lib/javadoc/json-lib-2.1-rev6-javadoc.jar!/" path="/crossdatawrapper/lib/compile/json-lib-2.1-rev6.jar" source="/crossdatawrapper/lib/sources/json-lib-2.1-rev6-sources.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/jyaml-1.3.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/log4j-1.2.13.jar" source="/crossdatawrapper/lib/sources/log4j-1.2.13-sources.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/opencsv-2.0.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/snakeyaml-1.13.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/xalan-2.7.0.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/xercesImpl-2.8.0.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/xml-apis-1.3.03.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/xom-1.2.5.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/xpp3_min-1.1.4c.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/xstream-1.3.1.jar" source="/crossdatawrapper/lib/javadoc/xstream-1.3.1-javadoc.jar"/>
+        <archive javadoc="jar:platform:/resource/crossdatawrapper/lib/javadoc/yamlbeans-1.06-javadoc.jar!/" path="/crossdatawrapper/lib/compile/yamlbeans-1.06.jar" source="/crossdatawrapper/lib/sources/yamlbeans-1.06-sources.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/mysql-connector-java-5.1.30.jar"/>
+        <archive javadoc="jar:platform:/resource/crossdatawrapper/lib/javadoc/mybatis-3.2.6-javadoc.jar!/" path="/crossdatawrapper/lib/compile/mybatis-3.2.6.jar" source="/crossdatawrapper/lib/sources/mybatis-3.2.6-sources.jar"/>
+        <archive path="/crossdatawrapper/lib/compile/sqlite-jdbc-3.7.2.jar"/>
+    </library>
+</eclipse-userlibraries>

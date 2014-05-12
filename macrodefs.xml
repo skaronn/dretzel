@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="macrodefs" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<macrodef name="clean" description="Clean a directory content">
+		<attribute name="dir" />
+		<sequential>
+			<delete includeemptydirs="true" verbose="true" failonerror="false">
+				<fileset dir="@{dir}">
+					<include name="**/*" />
+				</fileset>
+			</delete>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="compile" description="Compile project sources">
+		<attribute name="debug" default="false" />
+		<attribute name="src.dir" default="${src.dir}" />
+		<attribute name="classes.dir" default="${classes.dir}" />
+		<element name="javac-elements" optional="true" implicit="true" />
+		<sequential>
+			<mkdir dir="@{classes.dir}" />
+			<javac srcdir="@{src.dir}" destdir="@{classes.dir}" includeantruntime="false" debug="@{debug}" debuglevel="vars,lines,source">
+				<javac-elements />
+			</javac>
+			<copy todir="@{classes.dir}">
+				<fileset dir="@{src.dir}">
+					<exclude name="**/*.java" />
+				</fileset>
+			</copy>
+		</sequential>
+	</macrodef>
+
+</project>
