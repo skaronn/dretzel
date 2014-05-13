@@ -1,0 +1,44 @@
+{
+    "metadata": {"result_type": "recent", "iso_language_code": "it"}, 
+    "created_at": "Thu Apr 04 16: 48: 29 +0000 2013", 
+    "user": {
+        "id": "integer", 
+        "id_str": "id_str", 
+        "name": "a name and a surname", 
+        "screen_name": "ascreenname", 
+        "location": "Roma", 
+        "description": "some description ", 
+        "url": "some url", 
+        "entities": {
+            "url": {
+                "urls": [{
+                    "url": "other url", 
+                    "expanded_url": null, 
+                    "indices": [0, 39]
+                }]
+            }, 
+            "description": {"urls": []}
+        }, 
+        "notifications": null
+    }, 
+    "geo": null, 
+    "coordinates": null, 
+    "place": null, 
+    "contributors": null, 
+    "entities": {
+        "hashtags": [
+            {"text": "text", "indices": [29, 35]}, 
+            {"text": "text", "indices": [36, 52]}, 
+            {"text": "roma", "indices": [53, 58]}, 
+            {"text": "ostiense", "indices": [59, 68]}, 
+            {"text": "text", "indices": [69, 79]}, 
+            {"text": "text", "indices": [80, 92]}, 
+            {"text": "text", "indices": [93, 99]}
+        ], 
+        "urls": [
+            {"url": "an url", "expanded_url": "an url", "indices": [101, 123]}
+        ], 
+        "user_mentions": []
+    }, 
+    "lang": "it"
+}

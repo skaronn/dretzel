@@ -35,4 +35,10 @@ public class DretzelTest
     {
         assertTrue( true );
     }
+    
+    public void testYamlXSLfile()
+    {
+    	assertNotNull("Test file missing", getClass().getResource("xml2yaml.xsl"));
+    	assertNotNull("Test file missing", getClass().getResource("sample/example01.xml"));
+    }
 }

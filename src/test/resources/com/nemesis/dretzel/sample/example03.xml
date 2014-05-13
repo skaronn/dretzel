@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<object>
+  <address class="object">
+    <city type="string">New York</city>
+    <postalCode type="number">10021</postalCode>
+    <state type="string">NY</state>
+    <streetAddress type="string">21 2nd Street</streetAddress>
+  </address>
+  <age type="number">25</age>
+  <firstName type="string">John</firstName>
+  <lastName type="string">Smith</lastName>
+  <phoneNumbers class="array">
+    <e class="object">
+      <number type="string">212 555-1234</number>
+      <type type="string">home</type>
+    </e>
+    <e class="object">
+      <number type="string">646 555-4567</number>
+      <type type="string">fax</type>
+    </e>
+  </phoneNumbers>
+</object>

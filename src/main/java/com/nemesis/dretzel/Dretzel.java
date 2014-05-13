@@ -22,6 +22,11 @@ import net.sourceforge.argparse4j.inf.Namespace;
  */
 public class Dretzel 
 {
+	/**
+	 * dretzel [-h] [inputdatafile] [outputdatafile]
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args)
 	{
 		ArgumentParser parser = ArgumentParsers.newArgumentParser("dretzel").defaultHelp(true)

@@ -1,6 +1,7 @@
 package com.nemesis.dretzel;
 
-import cucumber.api.DataTable;
+import java.util.List;
+
 import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -8,11 +9,24 @@ import cucumber.api.java.en.When;
 
 public class DretzelStepdefs {
 	
+	private class ConverterItem {
+		private String inputdatafile;
+		private String outputdatafile;
+	}
+	
+	private static final String SAMPLE_DIRECTORY = "sample/";
+	
 	@Given("^I convert source data file to destination data file$")
-	public void I_convert_source_data_file_to_destination_data_file(DataTable dataTable) throws Throwable {
-	    // Express the Regexp above with the code you wish you had
-	    // For automatic conversion, change DataTable to List<YourType>
-	    throw new PendingException();
+	public void I_convert_source_data_file_to_destination_data_file(List<ConverterItem> items) {
+		
+		String[] args = new String[2];
+		
+		for (ConverterItem item : items) {
+			args[0] = getClass().getResource(SAMPLE_DIRECTORY + item.inputdatafile).getFile();
+			args[1] = item.outputdatafile;			
+			Dretzel.main(args);
+		}		
+	    
 	}
     
 	@When("^I validate source data file content$")
