@@ -1,11 +1,11 @@
 package com.nemesis.dretzel;
 
-import java.io.FileInputStream;
-
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+
+import org.apache.log4j.Logger;
 
 
 /**
@@ -20,8 +20,10 @@ import net.sourceforge.argparse4j.inf.Namespace;
  * 
  * @author adgnabro
  */
-public class Dretzel 
-{
+public class Dretzel {
+	
+	private static Logger logger = Logger.getLogger(Dretzel.class);
+
 	/**
 	 * dretzel [-h] [inputdatafile] [outputdatafile]
 	 * 
@@ -32,25 +34,22 @@ public class Dretzel
 		ArgumentParser parser = ArgumentParsers.newArgumentParser("dretzel").defaultHelp(true)
 				.description("Convert given data files.");
 		try {
-			parser.addArgument(DretzelConstants.INPUT_DATA_FILE).nargs("?").type(FileInputStream.class)
+			parser.addArgument(DretzelConstants.INPUT_DATA_FILE).nargs("?").type(String.class)
 			.setDefault(System.in).required(true);
 			parser.addArgument(DretzelConstants.OUTPUT_DATA_FILE).nargs("?").type(String.class)
 			.setDefault(System.out).required(true);
 			Namespace namespace = parser.parseArgs(args);
-			System.out.println(namespace);
-			FileInputStream fileInputStream = (FileInputStream) namespace.get(DretzelConstants.INPUT_DATA_FILE);
-			System.out.println("fileInputStream : "+fileInputStream);
-			wrapData(fileInputStream, namespace.getString(DretzelConstants.OUTPUT_DATA_FILE));
+			logger.info("namespace : "+namespace);
+			String inputFile = namespace.getString(DretzelConstants.INPUT_DATA_FILE);
+			logger.info("inputFile : "+inputFile);
+			String outputFile = namespace.getString(DretzelConstants.OUTPUT_DATA_FILE);
+			logger.info("outputFile : "+outputFile);
+			DretzelApp dretzelApp = new DretzelApp();
+			dretzelApp.wrapData(inputFile, outputFile);
 		} catch (ArgumentParserException e) {
 			parser.handleError(e);
 			System.exit(1);
 		}
 	}
-	
-	private final static void wrapData(FileInputStream inputFilePath, String outputFilePathDestination)
-	{
-		System.out.println(inputFilePath);
-		System.out.println(outputFilePathDestination);
-	}
-	
+
 }
