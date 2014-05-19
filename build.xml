@@ -138,7 +138,7 @@
 	</target>
 
 	<target name="javadoc" depends="init" description="Generate javadoc">
-		<javadoc sourcepath="${src.dir}" defaultexcludes="yes" destdir="${dist.dir}/javadoc" author="true" version="true" use="true" windowtitle="${ant.project.name} API">
+		<javadoc sourcepath="${src.dir}" defaultexcludes="yes" destdir="${javadoc.dir}" author="true" version="true" use="true" windowtitle="${ant.project.name} API">
 			<tag name="todo" scope="all" description="To do:" />
 		</javadoc>
 	</target>
