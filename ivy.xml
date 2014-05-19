@@ -35,7 +35,65 @@
 		<dependency org="net.sourceforge.javacsv" name="javacsv" rev="${javacsv.version}" conf="compile->default;sources;javadoc"/>
 		<dependency org="mysql" name="mysql-connector-java" rev="${mysql-connector-java.version}" conf="compile->default;sources;javadoc"/>
 		<dependency org="org.xerial" name="sqlite-jdbc" rev="${sqlite-jdbc.version}" conf="compile->default;sources;javadoc"/>
-		<dependency org="org.mybatis" name="mybatis" rev="${mybatis.version}" conf="compile->default;sources;javadoc"/>   
+		<dependency org="org.mybatis" name="mybatis" rev="${mybatis.version}" conf="compile->default;sources;javadoc"/>
+		<dependency org="info.cukes" name="cucumber-core" rev="${cucumber-core.version}">
+			<exclude module="cucumber-html"/>
+			<exclude module="cucumber-jvm-deps"/>
+			<exclude module="gherkin"/>
+		</dependency>
+		<dependency org="info.cukes" name="cucumber-html" rev="${cucumber-html.version}"/>
+		<dependency org="info.cukes" name="cucumber-java" rev="${cucumber-java.version}">
+			<exclude module="cucumber-core"/>
+			<exclude module="cucumber-html"/>
+			<exclude module="cucumber-jvm-deps"/>
+			<exclude module="gherkin"/>
+		</dependency>
+		<dependency org="info.cukes" name="cucumber-junit" rev="${cucumber-junit.version}">
+			<exclude module="cucumber-core"/>
+			<exclude module="cucumber-html"/>
+			<exclude module="cucumber-jvm-deps"/>
+			<exclude module="gherkin"/>
+			<exclude module="hamcrest-core"/>
+			<exclude module="junit"/>
+		</dependency>
+		<dependency org="info.cukes" name="cucumber-jvm-deps" rev="${cucumber-jvm-deps.version}"/>		 		
+		<dependency org="net.masterthought" name="cucumber-reporting" rev="${cucumber-reporting.version}">
+			<exclude module="avalon-logkit"/>			
+			<exclude module="ant"/>
+			<exclude module="antlr"/>
+			<exclude module="commons-collections"/>
+			<exclude module="commons-io"/>
+			<exclude module="commons-lang"/> 
+			<exclude module="cucumber-core"/>
+			<exclude module="cucumber-html"/>
+			<exclude module="gson"/>
+			<exclude module="guava"/>
+			<exclude module="joda-time"/>
+			<exclude module="junit"/>
+			<exclude module="jdom"/>
+			<exclude module="jsoup"/>
+			<exclude module="log4j"/>
+			<exclude module="maven-artifact"/>
+			<exclude module="maven-artifact-manager"/>
+			<exclude module="maven-model"/>
+			<exclude module="maven-plugin-api"/>
+			<exclude module="maven-plugin-registry"/>
+			<exclude module="maven-profile"/>
+			<exclude module="maven-project"/>
+			<exclude module="maven-repository-metadata"/>
+			<exclude module="maven-settings"/>
+			<exclude module="mockito-all"/>
+			<exclude module="oro"/>
+			<exclude module="plexus-utils"/>
+			<exclude module="servlet-api"/>
+			<exclude module="totallylazy"/>
+			<exclude module="velocity"/>
+			<exclude module="wagon-provider"/>
+			<exclude module="werken-xpath"/>	
+		</dependency>
+		<dependency org="info.cukes" name="gherkin" rev="${gherkin.version}">
+			<exclude module="gherkin-jvm-deps"/>
+		</dependency>
 		<dependency org="net.sourceforge.argparse4j" name="argparse4j" rev="${argparse4j.version}" conf="compile->default;sources;javadoc"/>                   
 	</dependencies>
 </ivy-module>

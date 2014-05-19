@@ -155,7 +155,7 @@
 		<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" />
 	</target>
 
-	<target name="pmd" depends="init,init-pmd" description="Check code with PMD">
+	<target name="pmd" depends="init, init-pmd" description="Check code with PMD">
 		<mkdir dir="${pmd.dist.dir}" />
 		<pmd shortFilenames="true">
 			<ruleset>rulesets/basic.xml</ruleset>
