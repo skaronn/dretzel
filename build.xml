@@ -67,8 +67,7 @@
 		</path>
     </target>
 	
-	<!--<target name="compile" depends="init, resolve-jar" description="Compile">-->
-	<target name="compile" depends="init" description="Compile">
+	<target name="compile" depends="init, resolve-jar" description="Compile">
 		<compile>
 			<classpath>
 				<path refid="runtime.classpath" />
