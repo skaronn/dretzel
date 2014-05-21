@@ -10,8 +10,8 @@
 	<import file="macrodefs.xml" />
 
 	<!-- Default values -->
-	<property name="src.dir" value="${project.dir}/src/main/java" />
-	<property name="test.src.dir" value="${project.dir}/src/java" />
+	<property name="src.dir" value="${project.dir}/src" />
+	<property name="test.src.dir" value="${project.dir}/src/test/java" />
 	<property name="dist.dir" value="${project.dir}/dist" />
 	<property name="classes.dir" value="${dist.dir}/classes" />
 	<property name="test.classes.dir" value="${dist.dir}/test-classes" />
@@ -220,7 +220,20 @@
 		</jdepend>
 	</target>
 	
-	<target name="install-cobertura" depends="init" unless="skip.download" description="Install Cobertura">
+	<target name="run-code-coverage" depends="init, jacoco, cobertura-instrument, cobertura-report" description="Run code coverage instrumentation"/>
+	
+	<target name="install-jacoco" depends="init" unless="skip.download">
+			<get src="http://sourceforge.net/projects/cobertura/files/cobertura/${cobertura.version}/${cobertura.dir}-bin.zip" dest="${project.dir}" usetimestamp="true"/>
+			<unzip overwrite="false" src="${cobertura.dir}-bin.zip" dest="${project.dir}"/>
+	</target>
+	
+	<target name="init-jacoco" depends="install-jacoco">
+	</target>
+	
+	<target name="jacoco" depends="init-jacoco">
+	</target>
+	
+	<target name="install-cobertura" depends="init" unless="skip.download">
 		<get src="http://sourceforge.net/projects/cobertura/files/cobertura/${cobertura.version}/${cobertura.dir}-bin.zip" dest="${project.dir}" usetimestamp="true"/>
 		<unzip overwrite="false" src="${cobertura.dir}-bin.zip" dest="${project.dir}"/>
 	</target>
@@ -239,27 +252,22 @@
 		<mkdir dir="${cobertura.test.reports.dir}" />
 		<mkdir dir="${cobertura.report.dir}" />
 		<mkdir dir="${debug.classes.dir}" />
-		<mkdir dir="${debug.test.classes.dir}" />
-		
+		<mkdir dir="${debug.test.classes.dir}" />		
 		<path id="cobertura.classpath">
 		    <fileset dir="${cobertura.dir}">
 		        <include name="cobertura-${cobertura.version}.jar" />
 		        <include name="lib/**/*.jar" />
 		    </fileset>
 		</path>
-
-		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />		
-
+		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 	</target>
-	
-	<target name="cobertura" depends="init, cobertura-instrument, cobertura-report" description="Run Cobertura instrument"/>
 		
 	<target name="cobertura-instrument" depends="init-cobertura, compile">	
 		<delete file="${cobertura.data.file}" />	
 		<cobertura-instrument todir="${cobertura.instrumented.classes.dir}" datafile="${cobertura.data.file}">
 		    <ignore regex="org.apache.log4j.*" />
-			<includeclasses regex=".*" />
-			<excludeclasses regex=".*\.Test.class" />
+			<includeclasses regex="*.class" />
+			<excludeclasses regex="**/*Test.class" />
 			<instrumentationClasspath>
 				<path refid="compile.classpath" />
 			</instrumentationClasspath>
