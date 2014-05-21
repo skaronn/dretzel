@@ -10,8 +10,8 @@
 	<import file="macrodefs.xml" />
 
 	<!-- Default values -->
-	<property name="src.dir" value="${project.dir}/src" />
-	<property name="test.src.dir" value="${project.dir}/src-test" />
+	<property name="src.dir" value="${project.dir}/src/main/java" />
+	<property name="test.src.dir" value="${project.dir}/src/java" />
 	<property name="dist.dir" value="${project.dir}/dist" />
 	<property name="classes.dir" value="${dist.dir}/classes" />
 	<property name="test.classes.dir" value="${dist.dir}/test-classes" />
@@ -38,9 +38,9 @@
 
 	<target name="clean-all" depends="init, clean, clean-libs" description="Clean all" />
 	
-	<target name="install-ivy" description="Used to install the ivy task jar">
+	<target name="install-ivy" unless="skip.download" description="Used to install the ivy task jar">
 	    <mkdir dir="${user.home}/.ant/lib"/>
-	    <get dest="${user.home}/.ant/lib/ivy.jar" src="http://search.maven.org/remotecontent?filepath=org/apache/ivy/ivy/2.2.0/ivy-2.2.0.jar"/>
+	    <get src="http://search.maven.org/remotecontent?filepath=org/apache/ivy/ivy/2.2.0/ivy-2.2.0.jar" dest="${user.home}/.ant/lib/ivy.jar" />
 	</target>
 	
 	<target name="install-pmd" depends="init" unless="skip.download" description="Install PMD">
@@ -255,11 +255,11 @@
 	<target name="cobertura" depends="init, cobertura-instrument, cobertura-report" description="Run Cobertura instrument"/>
 		
 	<target name="cobertura-instrument" depends="init-cobertura, compile">	
-		<delete file="cobertura.ser" />	
+		<delete file="${cobertura.data.file}" />	
 		<cobertura-instrument todir="${cobertura.instrumented.classes.dir}" datafile="${cobertura.data.file}">
 		    <ignore regex="org.apache.log4j.*" />
 			<includeclasses regex=".*" />
-			<excludeclasses regex=".*\.Test.*" />
+			<excludeclasses regex=".*\.Test.class" />
 			<instrumentationClasspath>
 				<path refid="compile.classpath" />
 			</instrumentationClasspath>
@@ -298,8 +298,7 @@
 	<target name="cobertura-report" depends="init">
 		<cobertura-report datafile="${cobertura.data.file}" format="xml" destdir="${cobertura.report.dir}" srcdir="${src.dir}" />
 		<echo>Cobertura reports built : ${cobertura.report.file}</echo>
-	</target>
-	
+	</target>	
 
 	<target name="init-site" depends="init">
 		<property name="site.dist.dir" value="${dist.dir}/site" />
