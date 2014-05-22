@@ -10,7 +10,7 @@
 	<import file="macrodefs.xml" />
 
 	<!-- Default values -->
-	<property name="src.dir" value="${project.dir}/src" />
+	<property name="src.dir" value="${project.dir}/src/main/java" />
 	<property name="src.package.dir" value="${src.dir}/main/java" />
 	<property name="test.src.dir" value="${project.dir}/src/test/java" />
 	<property name="dist.dir" value="${project.dir}/dist" />
@@ -26,13 +26,11 @@
 	</target>
 	
 	<target name="init" depends="init-proxy, install-ivy">
-		<!--
 		<mkdir dir="${lib.dir}/compile" />
 		<mkdir dir="${lib.dir}/test" />
 		<mkdir dir="${lib.dir}/runtime" />
 		<mkdir dir="${lib.dir}/javadoc" />
 		<mkdir dir="${lib.dir}/sources" />
-		-->
 	</target>
 
 	<target name="clean" depends="init" description="Clean distribution directory content">
@@ -85,8 +83,12 @@
 	</target>
 	
     <target name="compile-test" depends="compile">
-        <mkdir dir="target/test-classes"/>
-        <javac srcdir="src/test" destdir="target/test-classes" classpathref="compile.classpath" includeantruntime="false"/>
+    	<compile debug="true">
+			<classpath>
+				<path refid="runtime-jar.classpath" />
+				<path refid="test.classpath" />
+			</classpath>
+    	</compile>
     </target>
 
 	<!--<target name="package" depends="init, compile, javadoc, pmd, jdepend, test, cobertura, site" description="Make package">-->
