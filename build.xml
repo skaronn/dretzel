@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="dretzel" default="package" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:sonar="antlib:org.sonar.ant">
+<project name="dretzel" default="package" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:jacoco="antlib:org.jacoco.ant" xmlns:sonar="antlib:org.sonar.ant">
 
 	<property name="project.dir" value="${basedir}" />
 
@@ -11,6 +11,7 @@
 
 	<!-- Default values -->
 	<property name="src.dir" value="${project.dir}/src" />
+	<property name="src.package.dir" value="${src.dir}/main/java" />
 	<property name="test.src.dir" value="${project.dir}/src/test/java" />
 	<property name="dist.dir" value="${project.dir}/dist" />
 	<property name="classes.dir" value="${dist.dir}/classes" />
@@ -20,12 +21,18 @@
 	<property name="main.class.name" value="com.nemesis.dretzel.Dretzel" />
 	<property name="test.reports.dir" value="${dist.dir}/test-reports" />
 
-	<target name="init" depends="init-classpath, install-ivy">
+	<target name="init-proxy">
+		<setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" />
+	</target>
+	
+	<target name="init" depends="init-proxy, install-ivy">
+		<!--
 		<mkdir dir="${lib.dir}/compile" />
 		<mkdir dir="${lib.dir}/test" />
 		<mkdir dir="${lib.dir}/runtime" />
 		<mkdir dir="${lib.dir}/javadoc" />
 		<mkdir dir="${lib.dir}/sources" />
+		-->
 	</target>
 
 	<target name="clean" depends="init" description="Clean distribution directory content">
@@ -36,20 +43,19 @@
 		<clean dir="${lib.dir}" />
 	</target>
 
-	<target name="clean-all" depends="init, clean, clean-libs" description="Clean all" />
+	<target name="clean-all" depends="clean, clean-libs" description="Clean all" />
 	
-	<target name="install-ivy" unless="skip.download" description="Used to install the ivy task jar">
-	    <mkdir dir="${user.home}/.ant/lib"/>
-	    <get src="http://search.maven.org/remotecontent?filepath=org/apache/ivy/ivy/2.2.0/ivy-2.2.0.jar" dest="${user.home}/.ant/lib/ivy.jar" />
+	<target name="install-ivy" unless="skip.download" description="Install the ivy task jar">
+		<mkdir dir="${ivy.jar.dir}"/>
+		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
 	</target>
 	
 	<target name="install-pmd" depends="init" unless="skip.download" description="Install PMD">
-		<get src="http://downloads.sourceforge.net/project/pmd/pmd/${pmd.version}/pmd-bin-${pmd.version}.zip" dest="${project.dir}" usetimestamp="true"/>
-		<unzip overwrite="false" src="${project.dir}/pmd-bin-${pmd.version}.zip" dest="${project.dir}"/>
+		<get src="http://downloads.sourceforge.net/project/pmd/pmd/${pmd.version}/${pmd.archive}" dest="${plugins.dir}" usetimestamp="true"/>
+		<unzip overwrite="false" src="${plugins.dir}/${pmd.archive}" dest="${plugins.dir}"/>
 	</target>
 	
-	<target name="resolve-jar" description="Get dependencies jar">
-		<setproxy proxyhost="proxy.fr.nds.com" proxyport="8080" />
+	<target name="resolve-jar" depends="init-proxy" description="Get dependencies jar">
 		<mkdir dir="${lib.dir}" />
 		<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision](-[classifier]).[ext]"/>
 	</target>
@@ -67,8 +73,8 @@
 		</path>
     </target>
 	
-	<target name="compile" depends="init, resolve-jar" description="Compile">
-		<compile>
+	<target name="compile" depends="init, init-classpath" description="Compile">
+		<compile debug="true">
 			<classpath>
 				<path refid="runtime.classpath" />
 				<path refid="compile.classpath" />
@@ -76,7 +82,7 @@
 		</compile>
 	</target>
 	
-    <target name="compile-test" depends="init-classpath, compile">
+    <target name="compile-test" depends="compile">
         <mkdir dir="target/test-classes"/>
         <javac srcdir="src/test" destdir="target/test-classes" classpathref="compile.classpath" includeantruntime="false"/>
     </target>
@@ -118,7 +124,7 @@
 		<java jar="${jar.file}" fork="true" />
 	</target>
 
-	<target name="test-compile" depends="init, compile, resolve-jar" description="Compile unit tests">
+	<target name="test-compile" depends="init, compile" description="Compile unit tests">
 		<compile src.dir="${test.src.dir}" classes.dir="${test.classes.dir}">
 			<classpath>
 				<path path="${classes.dir}" />
@@ -158,11 +164,9 @@
 		</javadoc>
 	</target>
 
-	<target name="install-plugins" depends="init, install-pmd, install-cobertura">
-		<setproxy proxyhost="proxy.fr.nds.com" proxyport="8080" />
-		<property name="ant.libs.dir" value="${user.home}/.ant/lib" />
-		<mkdir dir="${ant.libs.dir}" />
-		<ivy:retrieve pattern="${ant.libs.dir}/[artifact]-[revision].[ext]" conf="build" />
+	<target name="install-plugins" depends="init, install-pmd, install-cobertura, install-jacoco">
+		<mkdir dir="${ant.user.libs.dir}" />
+		<ivy:retrieve pattern="${ant.user.libs.dir}/[artifact]-[revision].[ext]" conf="build" />
 	</target>
 
 	<target name="init-pmd" depends="install-pmd">
@@ -204,38 +208,74 @@
 			</fileset>
 		</pmd>
 	</target>
-
-	<target name="init-jdepend" depends="init">
-		<property name="jdepend.dist.dir" value="${dist.dir}/jdepend" />
-	</target>
-
-	<target name="jdepend" depends="init, init-jdepend, compile" description="Check code with JDepend">
-		<mkdir dir="${jdepend.dist.dir}" />
-		<jdepend outputfile="${jdepend.dist.dir}/jdepend-report.xml" format="xml">
-			<exclude name="java.*" />
-			<exclude name="javax.*" />
-			<classespath>
-				<pathelement location="${classes.dir}" />
-			</classespath>
-		</jdepend>
-	</target>
 	
-	<target name="run-code-coverage" depends="init, jacoco, cobertura-instrument, cobertura-report" description="Run code coverage instrumentation"/>
+	<target name="code-coverage" depends="init, cobertura" description="Run code coverage instrumentation"/>
 	
 	<target name="install-jacoco" depends="init" unless="skip.download">
-			<get src="http://sourceforge.net/projects/cobertura/files/cobertura/${cobertura.version}/${cobertura.dir}-bin.zip" dest="${project.dir}" usetimestamp="true"/>
-			<unzip overwrite="false" src="${cobertura.dir}-bin.zip" dest="${project.dir}"/>
+		<get src="http://search.maven.org/remotecontent?filepath=org/jacoco/jacoco/${jacoco.version}/jacoco-${jacoco.version}.zip" dest="${plugins.dir}" usetimestamp="true"/>
+		<unzip overwrite="false" src="${plugins.dir}/${jacoco.archive}" dest="${plugins.dir}"/>
 	</target>
 	
-	<target name="init-jacoco" depends="install-jacoco">
+	<target name="init-jacoco">
+		<property name="jacoco.dist.dir" value="${dist.dir}/jacoco" />
+		<property name="jacoco.instrumented.classes.dir" value="${jacoco.dist.dir}/instrumented-classes" />
+		<property name="jacoco.report.dir" value="${jacoco.dist.dir}/report" />
+		<path id="jacoco.classpath">
+		    <fileset dir="${jacoco.dir}">
+		        <include name="lib/**/*.jar" />
+		        <include name="cobertura/*.*" />
+		    </fileset>
+		</path>
+		<taskdef uri="antlib:org.jacoco.ant" classpathref="jacoco.classpath" resource="org/jacoco/ant/antlib.xml" />
 	</target>
 	
-	<target name="jacoco" depends="init-jacoco">
+	<target name="jacoco-instrument" depends="compile, init-jacoco">
+		<jacoco:instrument destdir="${jacoco.instrumented.classes.dir}">
+		    <fileset dir="${classes.dir}" includes="**/*.class"/>
+		</jacoco:instrument>
 	</target>
+	
+	<target name="jacoco-report" depends="init-jacoco">
+		<jacoco:report>                    
+		    <structure name="${ivy.organisation}.${ivy.module}">
+				<classfiles>
+					<fileset dir="${classes.dir}"/>
+				</classfiles>
+					<sourcefiles encoding="UTF-8">
+				<fileset dir="${src.package.dir}"/>
+			</sourcefiles>
+		    </structure>	                        
+		    <html destdir="${jacoco.report.dir}"/>	                        
+		</jacoco:report>
+	</target>
+	
+	<target name="jacoco-coverage" depends="init-classpath, init-jacoco">
+		<jacoco:coverage>
+		    <java classname="${main.class.name}" fork="true">
+				<classpath>
+					<path refid="compile.classpath" />
+					<path refid="runtime.classpath" />
+				</classpath>
+		    </java>
+		</jacoco:coverage>
+	</target>
+	
+	<target name="jacoco-coverage-test" depends="init-jacoco">
+		<jacoco:coverage>
+		    <junit fork="true" forkmode="once">
+		        <test name="org.jacoco.examples.HelloJaCoCoTest"/>
+		        <classpath>
+		            <pathelement location="./bin"/>
+		        </classpath>
+		    </junit>
+		</jacoco:coverage>
+	</target>
+		
+	<target name="jacoco" depends="init, init-classpath, jacoco-instrument" />
 	
 	<target name="install-cobertura" depends="init" unless="skip.download">
-		<get src="http://sourceforge.net/projects/cobertura/files/cobertura/${cobertura.version}/${cobertura.dir}-bin.zip" dest="${project.dir}" usetimestamp="true"/>
-		<unzip overwrite="false" src="${cobertura.dir}-bin.zip" dest="${project.dir}"/>
+		<get src="http://sourceforge.net/projects/cobertura/files/cobertura/${cobertura.version}/${cobertura.archive}" dest="${plugins.dir}" usetimestamp="true"/>
+		<unzip overwrite="false" src="${plugins.dir}/${cobertura.archive}" dest="${plugins.dir}"/>
 	</target>
 
 	<target name="init-cobertura" depends="install-cobertura">				
@@ -262,12 +302,16 @@
 		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 	</target>
 		
-	<target name="cobertura-instrument" depends="init-cobertura, compile">	
+	<target name="cobertura-instrument" depends="compile, init-cobertura">	
 		<delete file="${cobertura.data.file}" />	
 		<cobertura-instrument todir="${cobertura.instrumented.classes.dir}" datafile="${cobertura.data.file}">
 		    <ignore regex="org.apache.log4j.*" />
-			<includeclasses regex="*.class" />
-			<excludeclasses regex="**/*Test.class" />
+		    <includeclasses regex=".*" />
+		    <excludeclasses regex=".*\.Test.*" />
+			<fileset dir="${classes.dir}">
+		        <include name="**/*.class" />
+		        <exclude name="**/*Test.class" />
+			</fileset>
 			<instrumentationClasspath>
 				<path refid="compile.classpath" />
 			</instrumentationClasspath>
@@ -306,8 +350,25 @@
 	<target name="cobertura-report" depends="init">
 		<cobertura-report datafile="${cobertura.data.file}" format="xml" destdir="${cobertura.report.dir}" srcdir="${src.dir}" />
 		<echo>Cobertura reports built : ${cobertura.report.file}</echo>
-	</target>	
+	</target>
+	
+	<target name="cobertura" depends="init, init-classpath, cobertura-instrument, cobertura-instrument-test, cobertura-report" />
 
+	<target name="init-jdepend" depends="init">
+		<property name="jdepend.dist.dir" value="${dist.dir}/jdepend" />
+	</target>
+
+	<target name="jdepend" depends="init, init-jdepend, compile" description="Check code with JDepend">
+		<mkdir dir="${jdepend.dist.dir}" />
+		<jdepend outputfile="${jdepend.dist.dir}/jdepend-report.xml" format="xml">
+			<exclude name="java.*" />
+			<exclude name="javax.*" />
+			<classespath>
+				<pathelement location="${classes.dir}" />
+			</classespath>
+		</jdepend>
+	</target>
+	
 	<target name="init-site" depends="init">
 		<property name="site.dist.dir" value="${dist.dir}/site" />
 		<taskdef name="site" classname="fr.valtechtraining.ant.tasks.SiteTask" />
@@ -317,10 +378,19 @@
 		<mkdir dir="${dist.dir}" />
 		<site distDir="${dist.dir}" htmlTemplate="${project.dir}/site-template.html" />
 	</target>
+	
+	 <manifest file="MANIFEST.MF">
+		<attribute name="Built-By" value="${manifest.built.by}"/>
+		<attribute name="Created-By" value="${manifest.created.by}"/>
+		<attribute name="Main-Class" value="${manifest.main.class}"/>
+		<attribute name="Implementation-Version" value="${version.number}-b${build.number}"/>   
+		<attribute name="Built-Date" value="${TODAY}"/>
+		<attribute name="Class-Path" value="${mf.classpath}" />
+	</manifest>
 
 	<target name="init-sonar" depends="init">
 		<property name="sonar.dist.dir" value="${dist.dir}/sonar" />
-		<!--property name="sonar.host.url" value="http://localhost:9000"-->
+		<property name="sonar.host.url" value="http://localhost:9000"/>
 		<property name="sonar.sources" value="${src.dir}" />
 		<property name="sonar.tests" value="${test.src.dir}" />
 		<property name="sonar.dynamicAnalysis" value="reuseReports" />

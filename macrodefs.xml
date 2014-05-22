@@ -13,7 +13,7 @@
 	</macrodef>
 
 	<macrodef name="compile" description="Compile project sources">
-		<attribute name="debug" default="false" />
+		<attribute name="debug" default="true" />
 		<attribute name="src.dir" default="${src.dir}" />
 		<attribute name="classes.dir" default="${classes.dir}" />
 		<element name="javac-elements" optional="true" implicit="true" />

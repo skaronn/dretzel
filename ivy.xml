@@ -91,9 +91,11 @@
 			<exclude module="wagon-provider"/>
 			<exclude module="werken-xpath"/>	
 		</dependency>
-		<dependency org="info.cukes" name="gherkin" rev="${gherkin.version}">
+		<dependency org="info.cukes" name="gherkin" rev="${gherkin.version}" conf="runtime->default;sources;javadoc">
 			<exclude module="gherkin-jvm-deps"/>
 		</dependency>
-		<dependency org="net.sourceforge.argparse4j" name="argparse4j" rev="${argparse4j.version}" conf="runtime->default;sources;javadoc"/>                   
+		<dependency org="net.sourceforge.argparse4j" name="argparse4j" rev="${argparse4j.version}" conf="runtime->default;sources;javadoc"/>
+		<!--<dependency org="net.sourceforge.cobertura" name="cobertura" rev="${cobertura.version}"/>
+		<dependency org="org.jacoco" name="org.jacoco.agent" rev="${jacoco.version}"/>-->                 
 	</dependencies>
 </ivy-module>
