@@ -63,12 +63,14 @@
     <target name="init-classpath">
         <path id="compile.classpath">
             <pathelement location="target/classes"/>
+        </path>
+    	<path id="test.classpath">
             <pathelement location="target/test-classes"/>
         </path>
-		<path id="runtime.classpath">
+		<path id="runtime-jar.classpath">
 			<fileset dir="${lib.dir}/runtime" includes="*.jar" />
 		</path>
-		<path id="test.classpath">
+		<path id="test-jar.classpath">
 			<fileset dir="${lib.dir}/test" includes="*.jar" />
 		</path>
     </target>
@@ -76,7 +78,7 @@
 	<target name="compile" depends="init, init-classpath" description="Compile">
 		<compile debug="true">
 			<classpath>
-				<path refid="runtime.classpath" />
+				<path refid="runtime-jar.classpath" />
 				<path refid="compile.classpath" />
 			</classpath>
 		</compile>
@@ -115,7 +117,7 @@
 		<java classname="${main.class.name}" fork="true">
 			<classpath>
 				<path path="${classes.dir}" />
-				<path refid="runtime.classpath" />
+				<path refid="runtime-jar.classpath" />
 			</classpath>
 		</java>
 	</target>
@@ -254,7 +256,7 @@
 		    <java classname="${main.class.name}" fork="true">
 				<classpath>
 					<path refid="compile.classpath" />
-					<path refid="runtime.classpath" />
+					<path refid="runtime-jar.classpath" />
 				</classpath>
 		    </java>
 		</jacoco:coverage>
@@ -316,7 +318,7 @@
 				<path refid="compile.classpath" />
 			</instrumentationClasspath>
 			<auxClasspath>
-				<path refid="runtime.classpath" />
+				<path refid="runtime-jar.classpath" />
 			</auxClasspath>
 		</cobertura-instrument>		
 	</target>
