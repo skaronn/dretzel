@@ -151,13 +151,14 @@
 			<classpath>
 				<path path="${classes.test.dir}" />
 				<path path="${classes.dir}" />
-				<path refid="test.classpath" />
-				<path refid="compile.classpath" />
+				<path refid="lib.path.ref" />
 			</classpath>
 			<formatter type="xml" />
 			<batchtest fork="yes" todir="${reports.test.dir}">
 				<fileset dir="${src.test.dir}">
 					<include name="**/*.java" />
+					<exclude name="**/*RunCukesTest*"/>
+					<exclude name="**/*Stepdefs*"/>
 				</fileset>
 			</batchtest>
 		</junit>
@@ -312,31 +313,12 @@
 		</path>
 		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 	</target>
-		
-	<target name="cobertura-instrument" depends="compile, init-cobertura">	
-		<delete file="${cobertura.data.file}" />	
-		<cobertura-instrument todir="${cobertura.instrumented.classes.dir}" datafile="${cobertura.data.file}">
-		    <ignore regex="org.apache.log4j.*" />
-		    <includeclasses regex=".*" />
-		    <excludeclasses regex=".*\.Test.*" />
-			<fileset dir="${classes.dir}">
-		        <include name="**/*.class" />
-		        <exclude name="**/*Test.class" />
-			</fileset>
-			<instrumentationClasspath>
-				<path refid="src.path.ref" />
-			</instrumentationClasspath>
-			<auxClasspath>
-				<path refid="lib.path.ref" />
-			</auxClasspath>
-		</cobertura-instrument>		
-	</target>
-	
+			
+	<!--
 	<target name="cobertura-instrument-test" depends="init-cobertura, compile-test">	
 		<echo>Cobertura instrument test</echo>
-	</target>
+	</target>	
 	
-	<!--
 	<target name="cobertura-test" depends="init, init-cobertura, cobertura-instrument, cobertura-compile-test">
 		<junit fork="yes" printsummary="true">
 			<sysproperty key="net.sourceforge.cobertura.datafile" file="${cobertura.data.file}" />
@@ -358,12 +340,30 @@
 	</target>
 	-->
 	
-	<target name="cobertura-report" depends="init">
-		<cobertura-report datafile="${cobertura.data.file}" format="xml" destdir="${cobertura.report.dir}" srcdir="${src.dir}" />
-		<echo>Cobertura reports built : ${cobertura.report.file}</echo>
+	<target name="cobertura-instrument" depends="compile, init-cobertura">	
+		<delete file="${cobertura.data.file}" />	
+		<cobertura-instrument todir="${cobertura.instrumented.classes.dir}" datafile="${cobertura.data.file}">
+		    <ignore regex="org.apache.log4j.*" />
+		    <includeclasses regex=".*" />
+		    <excludeclasses regex=".*\.Test.*" />
+			<fileset dir="${classes.dir}">
+		        <include name="**/*.class" />
+		        <exclude name="**/*Test.class" />
+			</fileset>
+			<instrumentationClasspath>
+				<path refid="src.path.ref" />
+			</instrumentationClasspath>
+			<auxClasspath>
+				<path refid="lib.path.ref" />
+			</auxClasspath>
+		</cobertura-instrument>		
 	</target>
 	
-	<target name="cobertura" depends="init, init-classpath, cobertura-instrument, cobertura-instrument-test, cobertura-report" />
+	<target name="cobertura-report" depends="init">
+		<cobertura-report datafile="${cobertura.data.file}" format="xml" destdir="${cobertura.report.dir}" srcdir="${src.dir}" />
+	</target>
+	
+	<target name="cobertura" depends="init, init-classpath, cobertura-instrument, cobertura-report" />
 
 	<target name="init-jdepend" depends="init">
 		<property name="jdepend.dist.dir" value="${dist.dir}/jdepend" />
