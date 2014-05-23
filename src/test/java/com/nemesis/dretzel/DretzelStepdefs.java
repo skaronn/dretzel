@@ -22,7 +22,10 @@ public class DretzelStepdefs {
 		String[] args = new String[2];
 		
 		for (ConverterItem item : items) {
+			System.out.println("item.inputdatafile : "+item.inputdatafile);
+			System.out.println("item.outputdatafile : "+item.outputdatafile);
 			args[0] = getClass().getResource(SAMPLE_DIRECTORY + item.inputdatafile).getFile();
+			System.out.println("args[0] : "+args[0]);
 			args[1] = item.outputdatafile;			
 			Dretzel.main(args);
 		}		

@@ -13,6 +13,7 @@
 	<property name="src.dir" value="${project.dir}/src" />
 	<property name="src.main.dir" value="${project.dir}/src/main/java" />
 	<property name="src.test.dir" value="${project.dir}/src/test/java" />
+	<property name="src.resources.dir" value="${project.dir}/src/test/resources" />
 	<property name="dist.dir" value="${project.dir}/dist" />
 	<property name="classes.dir" value="${dist.dir}/classes" />
 	<property name="classes.main.dir" value="${dist.dir}/classes-main" />
@@ -22,6 +23,7 @@
 	<property name="jar.file" value="${dist.dir}/${ant.project.name}.jar" />
 	<property name="reports.dir" value="${dist.dir}/reports" />
 	<property name="reports.test.dir" value="${dist.dir}/test-reports" />
+	<property name="cucumber-junit-report.dir" value="${dist.dir}/cucumber-junit-report" />	
 	<property name="main.class.name" value="com.nemesis.dretzel.Dretzel" />	
 
 	<target name="init-proxy">
@@ -66,12 +68,13 @@
     		<pathelement path="${src.dir}"/>
     		<fileset dir="${src.dir}" includes="*.java"/>
     	</path>
-    	<path id="test.path.ref">
+    	<path id="test.path">
     	    <path refid="src.main.path.ref"/>
     		<path refid="lib.path.ref"/>
     	</path>
-    	<path id="compile.path.ref">
-    	    <path refid="src.path.ref"/>
+    	<path id="compiled.class.path">
+            <pathelement location="${classes.main.dir}"/>
+            <pathelement location="${classes.test.dir}"/>
     		<path refid="lib.path.ref"/>
     	</path>
     </target>
@@ -170,8 +173,8 @@
 		</junitreport>
 	</target>
 
-	<target name="javadoc" depends="init" description="Generate javadoc">
-		<javadoc sourcepath="${src.dir}" defaultexcludes="yes" destdir="${javadoc.dir}" author="true" version="true" use="true" windowtitle="${ant.project.name} API">
+	<target name="javadoc" depends="init,  init-classpath" description="Generate javadoc">
+		<javadoc sourcepath="${src.dir}" classpathref="lib.path.ref" defaultexcludes="yes" destdir="${javadoc.dir}" author="true" version="true" use="true" windowtitle="${ant.project.name} API">
 			<tag name="todo" scope="all" description="To do:" />
 		</javadoc>
 	</target>
@@ -406,5 +409,30 @@
 	<target name="sonar" depends="init, init-sonar, compile">
 		<sonar:sonar key="${sonar.key}" version="1.0-SNAPSHOT" />
 	</target>
+	
+	<target name="cucumber" depends="compile-test">
+		<mkdir dir="${cucumber-junit-report.dir}"/>
+        <java classname="cucumber.api.cli.Main" fork="true" failonerror="false" resultproperty="cucumber.exitstatus">
+            <classpath refid="compiled.class.path"/>
+        	<arg value="--format" />
+        	<arg value="pretty" />
+        	<arg value="--glue" />
+        	<arg value="com.nemesis.dretzel" />
+        	<arg value="${src.resources.dir}" />
+        </java>
+        <junitreport todir="${cucumber-junit-report.dir}">
+            <fileset dir="${cucumber-junit-report.dir}">
+                <include name="allcukes.xml"/>
+            </fileset>
+            <report format="frames" todir="${cucumber-junit-report.dir}"/>
+        </junitreport>
+        <fail message="Cucumber failed">
+            <condition>
+                <not>
+                    <equals arg1="${cucumber.exitstatus}" arg2="0"/>
+                </not>
+            </condition>
+        </fail>
+    </target>
 
 </project>
