@@ -10,28 +10,25 @@
 	<import file="macrodefs.xml" />
 
 	<!-- Default values -->
-	<property name="src.dir" value="${project.dir}/src/main/java" />
-	<property name="src.package.dir" value="${src.dir}/main/java" />
-	<property name="test.src.dir" value="${project.dir}/src/test/java" />
+	<property name="src.dir" value="${project.dir}/src" />
+	<property name="src.main.dir" value="${project.dir}/src/main/java" />
+	<property name="src.test.dir" value="${project.dir}/src/test/java" />
 	<property name="dist.dir" value="${project.dir}/dist" />
 	<property name="classes.dir" value="${dist.dir}/classes" />
-	<property name="test.classes.dir" value="${dist.dir}/test-classes" />
+	<property name="classes.main.dir" value="${dist.dir}/classes-main" />
+	<property name="classes.test.dir" value="${dist.dir}/classes-test" />
+	<property name="javadoc.dir" value="${dist.dir}/javadoc" />
 	<property name="lib.dir" value="${project.dir}/lib" />
 	<property name="jar.file" value="${dist.dir}/${ant.project.name}.jar" />
-	<property name="main.class.name" value="com.nemesis.dretzel.Dretzel" />
-	<property name="test.reports.dir" value="${dist.dir}/test-reports" />
+	<property name="reports.dir" value="${dist.dir}/reports" />
+	<property name="reports.test.dir" value="${dist.dir}/test-reports" />
+	<property name="main.class.name" value="com.nemesis.dretzel.Dretzel" />	
 
 	<target name="init-proxy">
 		<setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" />
 	</target>
 	
-	<target name="init" depends="init-proxy, install-ivy">
-		<mkdir dir="${lib.dir}/compile" />
-		<mkdir dir="${lib.dir}/test" />
-		<mkdir dir="${lib.dir}/runtime" />
-		<mkdir dir="${lib.dir}/javadoc" />
-		<mkdir dir="${lib.dir}/sources" />
-	</target>
+	<target name="init" depends="init-proxy, install-ivy" />
 
 	<target name="clean" depends="init" description="Clean distribution directory content">
 		<clean dir="${dist.dir}" />
@@ -53,43 +50,59 @@
 		<unzip overwrite="false" src="${plugins.dir}/${pmd.archive}" dest="${plugins.dir}"/>
 	</target>
 	
-	<target name="resolve-jar" depends="init-proxy" description="Get dependencies jar">
+	<target name="resolve-jar" depends="init-proxy" description="Resolve dependencies jar">
 		<mkdir dir="${lib.dir}" />
 		<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision](-[classifier]).[ext]"/>
 	</target>
 	
     <target name="init-classpath">
-        <path id="compile.classpath">
-            <pathelement location="${classes.dir}"/>
-        </path>
-    	<path id="test.classpath">
-            <pathelement location="${test.classes.dir}"/>
-        </path>
-		<path id="runtime-jar.classpath">
-			<fileset dir="${lib.dir}/runtime" includes="*.jar" />
+		<path id="lib.path.ref">
+			<fileset dir="${lib.dir}/runtime" includes="*.jar"/>
 		</path>
-		<path id="test-jar.classpath">
-			<fileset dir="${lib.dir}/test" includes="*.jar" />
-		</path>
+    	<path id="src.main.path.ref">
+    		<pathelement path="${src.main.dir}"/>
+    	</path>
+    	<path id="src.path.ref">
+    		<pathelement path="${src.dir}"/>
+    		<fileset dir="${src.dir}" includes="*.java"/>
+    	</path>
+    	<path id="test.path.ref">
+    	    <path refid="src.main.path.ref"/>
+    		<path refid="lib.path.ref"/>
+    	</path>
+    	<path id="compile.path.ref">
+    	    <path refid="src.path.ref"/>
+    		<path refid="lib.path.ref"/>
+    	</path>
     </target>
 	
-	<target name="compile" depends="init, init-classpath" description="Compile">
-		<compile debug="true">
+	<target name="compile-main" depends="init, init-classpath, resolve-jar">
+		<echo message="Compiling main sources." />
+		<compile src.dir="${src.main.dir}" classes.dir="${classes.main.dir}">
 			<classpath>
-				<path refid="runtime-jar.classpath" />
-				<path refid="compile.classpath" />
+				<path refid="lib.path.ref" />
 			</classpath>
 		</compile>
 	</target>
 	
-    <target name="compile-test" depends="compile">
-    	<compile debug="true">
+	<target name="compile-test" depends="init, init-classpath, resolve-jar, compile">
+		<echo message="Compiling test sources." />
+		<compile src.dir="${src.test.dir}" classes.dir="${classes.test.dir}">
 			<classpath>
-				<path refid="runtime-jar.classpath" />
-				<path refid="test.classpath" />
+				<path path="${classes.dir}" />
+				<path refid="lib.path.ref" />
 			</classpath>
-    	</compile>
-    </target>
+		</compile>
+	</target>
+		
+	<target name="compile" depends="init, init-classpath, resolve-jar" description="Compile">
+		<echo message="Compiling sources." />
+		<compile src.dir="${src.dir}" classes.dir="${classes.dir}">
+			<classpath>
+				<path refid="lib.path.ref" />
+			</classpath>
+		</compile>
+	</target>
 
 	<target name="package" depends="init, compile, javadoc, pmd, jdepend, test, cobertura, site" description="Make package">
 		<jar destfile="${jar.file}">
@@ -123,7 +136,7 @@
 		<java classname="${main.class.name}" fork="true">
 			<classpath>
 				<path path="${classes.dir}" />
-				<path refid="runtime-jar.classpath" />
+				<path refid="lib.path.ref" />
 			</classpath>
 		</java>
 	</target>
@@ -132,37 +145,27 @@
 		<java jar="${jar.file}" fork="true" />
 	</target>
 
-	<target name="test-compile" depends="init, compile" description="Compile unit tests">
-		<compile src.dir="${test.src.dir}" classes.dir="${test.classes.dir}">
-			<classpath>
-				<path path="${classes.dir}" />
-				<path refid="test.classpath" />
-				<path refid="compile.classpath" />
-			</classpath>
-		</compile>
-	</target>
-
-	<target name="test" depends="init, test-compile" description="Run unit tests">
-		<mkdir dir="${test.reports.dir}" />
+	<target name="test" depends="init, compile-test" description="Run unit tests">
+		<mkdir dir="${reports.test.dir}" />
 		<junit printsummary="withOutAndErr" fork="yes">
 			<classpath>
-				<path path="${test.classes.dir}" />
+				<path path="${classes.test.dir}" />
 				<path path="${classes.dir}" />
 				<path refid="test.classpath" />
 				<path refid="compile.classpath" />
 			</classpath>
 			<formatter type="xml" />
-			<batchtest fork="yes" todir="${test.reports.dir}">
-				<fileset dir="${test.src.dir}">
+			<batchtest fork="yes" todir="${reports.test.dir}">
+				<fileset dir="${src.test.dir}">
 					<include name="**/*.java" />
 				</fileset>
 			</batchtest>
 		</junit>
-		<junitreport todir="${test.reports.dir}">
-			<fileset dir="${test.reports.dir}">
+		<junitreport todir="${reports.test.dir}">
+			<fileset dir="${reports.test.dir}">
 				<include name="TEST-*.xml" />
 			</fileset>
-			<report todir="${test.reports.dir}" />
+			<report todir="${reports.test.dir}" />
 		</junitreport>
 	</target>
 
@@ -243,14 +246,14 @@
 		</jacoco:instrument>
 	</target>
 	
-	<target name="jacoco-report" depends="init-jacoco">
+	<target name="jacoco-report" depends="compile, init-jacoco">
 		<jacoco:report>                    
 		    <structure name="${ivy.organisation}.${ivy.module}">
 				<classfiles>
 					<fileset dir="${classes.dir}"/>
 				</classfiles>
 					<sourcefiles encoding="UTF-8">
-				<fileset dir="${src.package.dir}"/>
+				<fileset dir="${src.dir}"/>
 			</sourcefiles>
 		    </structure>	                        
 		    <html destdir="${jacoco.report.dir}"/>	                        
@@ -262,7 +265,7 @@
 		    <java classname="${main.class.name}" fork="true">
 				<classpath>
 					<path refid="compile.classpath" />
-					<path refid="runtime-jar.classpath" />
+					<path refid="lib.path.ref" />
 				</classpath>
 		    </java>
 		</jacoco:coverage>
@@ -290,17 +293,17 @@
 		<property name="cobertura.dist.dir" value="${dist.dir}/cobertura" />
 		<property name="cobertura.instrumented.classes.dir" value="${cobertura.dist.dir}/instrumented-classes" />
 		<property name="cobertura.data.file" value="${cobertura.dist.dir}/cobertura.ser" />
-		<property name="cobertura.test.reports.dir" value="${cobertura.dist.dir}/test-reports" />
+		<property name="cobertura.reports.test.dir" value="${cobertura.dist.dir}/test-reports" />
 		<property name="cobertura.report.dir" value="${cobertura.dist.dir}/report" />
 		<property name="cobertura.report.file" value="${cobertura.report.dir}/coverage.xml" />
 		<property name="debug.classes.dir" value="${cobertura.dist.dir}/classes" />
-		<property name="debug.test.classes.dir" value="${cobertura.dist.dir}/test-classes" />
+		<property name="debug.classes.test.dir" value="${cobertura.dist.dir}/test-classes" />
 		<mkdir dir="${cobertura.dist.dir}" />
 		<mkdir dir="${cobertura.instrumented.classes.dir}" />
-		<mkdir dir="${cobertura.test.reports.dir}" />
+		<mkdir dir="${cobertura.reports.test.dir}" />
 		<mkdir dir="${cobertura.report.dir}" />
 		<mkdir dir="${debug.classes.dir}" />
-		<mkdir dir="${debug.test.classes.dir}" />		
+		<mkdir dir="${debug.classes.test.dir}" />		
 		<path id="cobertura.classpath">
 		    <fileset dir="${cobertura.dir}">
 		        <include name="cobertura-${cobertura.version}.jar" />
@@ -321,10 +324,10 @@
 		        <exclude name="**/*Test.class" />
 			</fileset>
 			<instrumentationClasspath>
-				<path refid="compile.classpath" />
+				<path refid="src.path.ref" />
 			</instrumentationClasspath>
 			<auxClasspath>
-				<path refid="runtime-jar.classpath" />
+				<path refid="lib.path.ref" />
 			</auxClasspath>
 		</cobertura-instrument>		
 	</target>
@@ -339,15 +342,15 @@
 			<sysproperty key="net.sourceforge.cobertura.datafile" file="${cobertura.data.file}" />
 			<classpath>
 				<path location="${cobertura.instrumented.classes.dir}" />
-				<path location="${debug.test.classes.dir}" />
+				<path location="${debug.classes.test.dir}" />
 				<path location="${debug.classes.dir}" />
 				<path refid="test.classpath" />
 				<path refid="compile.classpath" />
 				<path path="${java.class.path}" />
 			</classpath>
 			<formatter type="xml" />
-			<batchtest fork="yes" todir="${cobertura.test.reports.dir}">
-				<fileset dir="${test.src.dir}">
+			<batchtest fork="yes" todir="${cobertura.reports.test.dir}">
+				<fileset dir="${src.test.dir}">
 					<include name="**/*.java" />
 				</fileset>
 			</batchtest>
@@ -391,9 +394,9 @@
 		<property name="sonar.dist.dir" value="${dist.dir}/sonar" />
 		<property name="sonar.host.url" value="http://localhost:9000"/>
 		<property name="sonar.sources" value="${src.dir}" />
-		<property name="sonar.tests" value="${test.src.dir}" />
+		<property name="sonar.tests" value="${src.test.dir}" />
 		<property name="sonar.dynamicAnalysis" value="reuseReports" />
-		<property name="sonar.surefire.reportsPath" value="${cobertura.test.reports.dir}" />
+		<property name="sonar.surefire.reportsPath" value="${cobertura.reports.test.dir}" />
 		<property name="sonar.cobertura.reportPath" value="${cobertura.report.file}" />
 		<property name="sonar.key" value="${ivy.organisation}:${ivy.module}" />
 		<taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml" />

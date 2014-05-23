@@ -11,7 +11,7 @@
 			</delete>
 		</sequential>
 	</macrodef>
-
+	
 	<macrodef name="compile" description="Compile project sources">
 		<attribute name="debug" default="true" />
 		<attribute name="src.dir" default="${src.dir}" />
@@ -19,7 +19,7 @@
 		<element name="javac-elements" optional="true" implicit="true" />
 		<sequential>
 			<mkdir dir="@{classes.dir}" />
-			<javac srcdir="@{src.dir}" destdir="@{classes.dir}" includeantruntime="false" debug="@{debug}" debuglevel="vars,lines,source">
+			<javac srcdir="@{src.dir}" destdir="@{classes.dir}" includeantruntime="no" debug="@{debug}" debuglevel="vars,lines,source">
 				<javac-elements />
 			</javac>
 			<copy todir="@{classes.dir}">
