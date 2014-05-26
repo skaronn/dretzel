@@ -47,11 +47,6 @@
 		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
 	</target>
 	
-	<target name="install-pmd" depends="init" unless="skip.download" description="Install PMD">
-		<get src="http://downloads.sourceforge.net/project/pmd/pmd/${pmd.version}/${pmd.archive}" dest="${plugins.dir}" usetimestamp="true"/>
-		<unzip overwrite="false" src="${plugins.dir}/${pmd.archive}" dest="${plugins.dir}"/>
-	</target>
-	
 	<target name="resolve-jar" depends="init-proxy" description="Resolve dependencies jar">
 		<mkdir dir="${lib.dir}" />
 		<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision](-[classifier]).[ext]"/>
@@ -183,6 +178,11 @@
 		<mkdir dir="${ant.user.libs.dir}" />
 		<ivy:retrieve pattern="${ant.user.libs.dir}/[artifact]-[revision].[ext]" conf="build" />
 	</target>
+	
+	<target name="install-pmd" depends="init" unless="skip.download" description="Install PMD">
+		<get src="http://downloads.sourceforge.net/project/pmd/pmd/${pmd.version}/${pmd.archive}" dest="${plugins.dir}" usetimestamp="true"/>
+		<unzip overwrite="false" src="${plugins.dir}/${pmd.archive}" dest="${plugins.dir}"/>
+	</target>
 
 	<target name="init-pmd" depends="install-pmd">
 		<property name="pmd.dist.dir" value="${dist.dir}/pmd" />
@@ -223,8 +223,6 @@
 			</fileset>
 		</pmd>
 	</target>
-	
-	<target name="code-coverage" depends="init, cobertura" description="Run code coverage instrumentation"/>
 	
 	<target name="install-jacoco" depends="init" unless="skip.download">
 		<get src="http://search.maven.org/remotecontent?filepath=org/jacoco/jacoco/${jacoco.version}/jacoco-${jacoco.version}.zip" dest="${plugins.dir}" usetimestamp="true"/>
@@ -316,32 +314,6 @@
 		</path>
 		<taskdef classpathref="cobertura.classpath" resource="tasks.properties" />
 	</target>
-			
-	<!--
-	<target name="cobertura-instrument-test" depends="init-cobertura, compile-test">	
-		<echo>Cobertura instrument test</echo>
-	</target>	
-	
-	<target name="cobertura-test" depends="init, init-cobertura, cobertura-instrument, cobertura-compile-test">
-		<junit fork="yes" printsummary="true">
-			<sysproperty key="net.sourceforge.cobertura.datafile" file="${cobertura.data.file}" />
-			<classpath>
-				<path location="${cobertura.instrumented.classes.dir}" />
-				<path location="${debug.classes.test.dir}" />
-				<path location="${debug.classes.dir}" />
-				<path refid="test.classpath" />
-				<path refid="compile.classpath" />
-				<path path="${java.class.path}" />
-			</classpath>
-			<formatter type="xml" />
-			<batchtest fork="yes" todir="${cobertura.reports.test.dir}">
-				<fileset dir="${src.test.dir}">
-					<include name="**/*.java" />
-				</fileset>
-			</batchtest>
-		</junit>
-	</target>
-	-->
 	
 	<target name="cobertura-instrument" depends="compile, init-cobertura">	
 		<delete file="${cobertura.data.file}" />	
@@ -366,14 +338,24 @@
 		<cobertura-report datafile="${cobertura.data.file}" format="xml" destdir="${cobertura.report.dir}" srcdir="${src.dir}" />
 	</target>
 	
-	<target name="cobertura" depends="init, init-classpath, cobertura-instrument, cobertura-report" />
+	<target name="cobertura" depends="init, init-classpath, cobertura-instrument, cobertura-report" description="Run code coverage instrumentation" />
 
-	<target name="init-jdepend" depends="init">
+	<target name="install-jdepend" depends="init" unless="skip.download">
+		<get src="http://www.clarkware.com/software/${jdepend.archive}" dest="${plugins.dir}" usetimestamp="true"/>
+		<unzip overwrite="false" src="${plugins.dir}/${jdepend.archive}" dest="${plugins.dir}"/>
+		<copy todir="${ant.user.libs.dir}">
+			<fileset dir="${jdepend.dir}">
+			  <exclude name="**/*.jar"/>
+			</fileset>
+		 </copy>
+	</target>
+	
+	<target name="init-jdepend" depends="install-jdepend">
 		<property name="jdepend.dist.dir" value="${dist.dir}/jdepend" />
+		<mkdir dir="${jdepend.dist.dir}" />		
 	</target>
 
-	<target name="jdepend" depends="init, init-jdepend, compile" description="Check code with JDepend">
-		<mkdir dir="${jdepend.dist.dir}" />
+	<target name="jdepend" depends="init-jdepend, compile" description="Check code with JDepend">		
 		<jdepend outputfile="${jdepend.dist.dir}/jdepend-report.xml" format="xml">
 			<exclude name="java.*" />
 			<exclude name="javax.*" />
