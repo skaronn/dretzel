@@ -3,22 +3,39 @@ package com.nemesis.dretzel;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Date;
+import java.util.IllegalFormatException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactoryConfigurationError;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSOutput;
 import org.w3c.dom.ls.LSSerializer;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import com.nemesis.dretzel.converter.CSVConverter;
+import com.nemesis.dretzel.converter.IConverter;
+import com.nemesis.dretzel.converter.JSONConverter;
+import com.nemesis.dretzel.converter.SQLConverter;
+import com.nemesis.dretzel.converter.YAMLConverter;
 
 public class DretzelApp {
 	
-	private static Logger logger = Logger.getLogger(DretzelApp.class);
+	private static Logger LOGGER = Logger.getLogger(DretzelApp.class);
 	
 	private static final String DESTINATION_DIR = "/output/";
 
@@ -28,18 +45,19 @@ public class DretzelApp {
 
 	public final void wrapData(String inputFile, String outputFile)
 	{
-		logger.debug("inputFile : "+inputFile);
-		logger.debug("outputFile : "+outputFile);
-		/*
 		String fileContent = null;
 		InputStream inputStream = null;
+		
 		String dateFormat = DretzelConstants.OUTPUT_DIRECTORY_FORMATER.format(new Date());
 		LOGGER.debug("dateFormat : "+dateFormat);
+		
+		LOGGER.debug("inputFile : "+inputFile);
+		LOGGER.debug("outputFile : "+outputFile);
 
 		// Load file input stream
 		inputStream = Utils.getInputStreamFromFile(this, inputFile);
-		LOGGER.debug("inputStream : "+inputStream);		
-
+		LOGGER.debug("inputStream : "+inputStream);
+		
 		// Load input stream content as String
 		try {
 			fileContent = IOUtils.toString(inputStream);
@@ -47,13 +65,13 @@ public class DretzelApp {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		
 		String sourceFormat = Utils.getFileExtension(inputFile);
 		LOGGER.debug("sourceFormat : "+sourceFormat);
 
 		String destinationFormat = Utils.getFileExtension(outputFile);
 		LOGGER.debug("destinationFormat : "+destinationFormat);
-
+		
 		// Convert data format
 		String outputFileContent = getConvertFile(inputFile, sourceFormat, destinationFormat);
 		LOGGER.debug("outputFileContent : "+outputFileContent);
@@ -68,7 +86,6 @@ public class DretzelApp {
 
 		String outputFilePath = createFile(destinationOutputFilePath, outputFileContent);
 		LOGGER.debug(outputFilePath+" succesfully saved !!!");
-		*/
 	}
 	
 	/**
@@ -80,8 +97,6 @@ public class DretzelApp {
 	 */
 	private final String getConvertFile(String filePath, String sourceFormat, String destinationFormat)
 	{
-		return "";
-		/*
 		InputStream inputStream = Utils.getInputStreamFromFile(this, filePath);
 
 		String file = null;
@@ -89,7 +104,6 @@ public class DretzelApp {
 
 		if(DataType.BIN.equals(DataType.valueOf(destinationFormat.toUpperCase())) || DataType.BINARY.equals(DataType.valueOf(destinationFormat.toUpperCase())))
 		{
-
 			try {
 				file = IOUtils.toString(inputStream);
 			} catch (IOException e1) {
@@ -131,10 +145,12 @@ public class DretzelApp {
 			dataFileContent = stringBuffer.toString();
 		}
 		else{
+			dataFileContent = "dummy";
+			
 			// Convert Data to XML DOM object
-			Document xmlDOMObject = convertGivenDataToXMLDOMObject(inputStream, sourceFormat);
-			System.out.println("xmlDOMObject : "+xmlDOMObject);
-
+			Document documentObject = convertGivenDataToXMLDOMObject(inputStream, sourceFormat);
+			System.out.println("documentObject : "+documentObject);
+			/*
 			// Create temporary file from XML DOM object
 			DOMImplementationLS domImplementationLS = (DOMImplementationLS) xmlDOMObject.getImplementation();			
 			LSOutput lsOutput =  domImplementationLS.createLSOutput();			
@@ -144,7 +160,7 @@ public class DretzelApp {
 			lsSerializer.write(xmlDOMObject, lsOutput);
 
 			// Format XML DOM string
-			String xmlDOMObjectAsStringContent = formatDOMObject(xmlDOMObject);			
+			String xmlDOMObjectAsStringContent = formatDocumentObject(xmlDOMObject);			
 			System.out.println("xmlDOMObjectAsStringContent : "+xmlDOMObjectAsStringContent);
 
 			// Create string from XML DOM object in resource directory
@@ -155,11 +171,68 @@ public class DretzelApp {
 			String xmlFilePath = createFile(xmlTmpFilePath, xmlDOMObjectAsStringContent);			
 			System.out.println("xmlFilePath : "+xmlFilePath);
 
-			dataFileContent = convertDOMObjectToGivenData(xmlDOMObject, destinationFormat, inputStream, SAMPLE_BASE_DIRECTORY + TMP_XML_DATA);			
+			dataFileContent = convertDOMObjectToGivenData(xmlDOMObject, destinationFormat, inputStream, SAMPLE_BASE_DIRECTORY + TMP_XML_DATA);
+			*/		
 		}
 		System.out.println("dataFileContent : "+dataFileContent);
 		return dataFileContent;
-		*/
+	}
+	
+	/**
+	 * Creates a new XML object (DOM) object from input stream and data type.
+	 * @param {@link String} filePath 
+	 * @param type data type
+	 * @return {@link Document} xml object
+	 */
+	private final Document convertGivenDataToXMLDOMObject(InputStream fileInputStream, String inputFormatType) throws IllegalFormatException
+	{
+		Document documentXML = null;
+		InputSource inputSource = null;
+		StringReader stringReader = null;
+		Reader reader = null;
+		String outputXMLString = null;
+		IConverter dataConverter = null ;
+
+		try {
+
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+
+			switch( DataType.valueOf( inputFormatType.toUpperCase() ) )
+			{
+
+			case JSON:
+				dataConverter = new JSONConverter();
+				break;
+
+			case CSV:
+				dataConverter = new CSVConverter();
+				break;
+
+			case YML:
+			case YAML:
+				dataConverter = new YAMLConverter();
+				break;
+
+			case SQL:
+				dataConverter = new SQLConverter();
+				break;
+
+			case XML:
+			default:
+				break;				
+			}
+			
+			
+			documentXML = dataConverter.toXML();
+			
+		} catch (ParserConfigurationException e) {
+			e.printStackTrace();
+		} catch (TransformerFactoryConfigurationError e) {
+			e.printStackTrace();
+		}
+
+		return documentXML;		
 	}
 	
 	/**
@@ -179,23 +252,6 @@ public class DretzelApp {
 			e.printStackTrace();
 		}
 		return file.getAbsolutePath();		
-	}
-
-	/**
-	 * 
-	 * @param Document documentObject
-	 * @return
-	 */
-	private final String formatDocumentObject(Document documentObject)
-	{
-		DOMImplementationLS domImplementationLS = (DOMImplementationLS) documentObject.getImplementation();			
-		LSOutput lsOutput =  domImplementationLS.createLSOutput();			
-		lsOutput.setEncoding("UTF-8");			
-		Writer stringWriter = new StringWriter();
-		lsOutput.setCharacterStream(stringWriter);
-		LSSerializer lsSerializer = domImplementationLS.createLSSerializer();
-		lsSerializer.write(documentObject, lsOutput);
-		return stringWriter.toString();
 	}
 
 

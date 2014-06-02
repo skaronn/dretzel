@@ -2,15 +2,17 @@ package com.nemesis.dretzel.converter;
 
 import org.w3c.dom.Document;
 
-public class CSVConverter implements IConverter{
+public class CSVConverter extends AbstractConverter {
 
 	public Document toXML() {
+		if(isValid()){
+			return null;
+		}
 		return null;
 	}
 
 	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

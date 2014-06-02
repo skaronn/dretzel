@@ -2,15 +2,21 @@ package com.nemesis.dretzel.converter;
 
 import org.w3c.dom.Document;
 
-public class JSONConverter implements IConverter{
+public class JSONConverter extends AbstractConverter {
+	
+	public JSONConverter(){
+		
+	}
 
 	public Document toXML() {
+		if(isValid()){
+			return null;
+		}
 		return null;
 	}
 
 	public boolean isValid() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 }

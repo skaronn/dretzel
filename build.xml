@@ -143,7 +143,7 @@
 		<java jar="${jar.file}" fork="true" />
 	</target>
 
-	<target name="test" depends="init, compile-test" description="Run unit tests">
+	<target name="test" depends="init, compile-test" description="Run unitary tests">
 		<mkdir dir="${reports.test.dir}" />
 		<junit printsummary="withOutAndErr" fork="yes">
 			<classpath>
@@ -284,7 +284,7 @@
 		</jacoco:coverage>
 	</target>
 		
-	<target name="jacoco" depends="init, init-classpath, jacoco-instrument" />
+	<target name="jacoco" depends="init, init-classpath, jacoco-instrument" description="Run JaCoCo" />
 	
 	<target name="install-cobertura" depends="init" unless="skip.download">
 		<get src="http://sourceforge.net/projects/cobertura/files/cobertura/${cobertura.version}/${cobertura.archive}" dest="${plugins.dir}" usetimestamp="true"/>
@@ -392,7 +392,7 @@
 		<sonar:sonar key="${sonar.key}" version="1.0-SNAPSHOT" />
 	</target>
 	
-	<target name="cucumber" depends="compile-test">
+	<target name="cucumber" depends="compile-test" description="Run Cucumber test">
 		<mkdir dir="${cucumber-junit-report.dir}"/>
         <java classname="cucumber.api.cli.Main" fork="true" failonerror="false" resultproperty="cucumber.exitstatus">
             <classpath refid="compiled.class.path"/>
