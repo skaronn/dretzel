@@ -1,18 +1,58 @@
 package com.nemesis.dretzel.converter;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import net.sf.json.JSON;
+import net.sf.json.JSONSerializer;
+
+import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class JSONConverter extends AbstractConverter {
-	
-	public JSONConverter(){
-		
+
+	private InputStream fileInputStream;
+
+	public JSONConverter(InputStream fileInputStream){
+		this.fileInputStream=fileInputStream;
 	}
 
 	public Document toXML() {
+		Document documentXML = null;
 		if(isValid()){
-			return null;
+			String jsonData;
+			try {
+				jsonData = IOUtils.toString(fileInputStream);
+
+				net.sf.json.xml.XMLSerializer serializer = new net.sf.json.xml.XMLSerializer();       
+				JSON json = JSONSerializer.toJSON(jsonData);
+				String jsonToXML = serializer.write(json);
+				StringReader stringReader = new StringReader(jsonToXML);
+				InputSource inputSource = new InputSource(stringReader);
+				DocumentBuilder documentBuilder;
+
+				documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				documentXML = documentBuilder.parse(inputSource);
+
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			catch (ParserConfigurationException e) {
+				e.printStackTrace();
+			} catch (SAXException e) {
+				e.printStackTrace();
+			}
+
 		}
-		return null;
+		return documentXML;
 	}
 
 	public boolean isValid() {

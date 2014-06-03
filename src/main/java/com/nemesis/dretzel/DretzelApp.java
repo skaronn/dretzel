@@ -202,11 +202,11 @@ public class DretzelApp {
 			{
 
 			case JSON:
-				dataConverter = new JSONConverter();
+				dataConverter = new JSONConverter(fileInputStream);
 				break;
 
 			case CSV:
-				dataConverter = new CSVConverter();
+				dataConverter = new CSVConverter(fileInputStream);
 				break;
 
 			case YML:
