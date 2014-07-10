@@ -26,7 +26,8 @@ public class DretzelStepdefs {
 			System.out.println("item.outputdatafile : "+item.outputdatafile);
 			args[0] = SAMPLE_DIRECTORY + item.inputdatafile;
 			System.out.println("args[0] : "+args[0]);
-			args[1] = item.outputdatafile;			
+			args[1] = item.outputdatafile;
+			System.out.println("args[1] : "+args[1]);
 			Dretzel.main(args);
 		}		
 	    
@@ -35,13 +36,13 @@ public class DretzelStepdefs {
 	@When("^I validate source data file content$")
 	public void I_validate_source_data_file_content() throws Throwable {
 	    // Express the Regexp above with the code you wish you had
-	    throw new PendingException();
+	    //throw new PendingException();
 	}
 
 	@Then("^I validate destination data file content$")
 	public void I_validate_destination_data_file_content() throws Throwable {
 	    // Express the Regexp above with the code you wish you had
-	   throw new PendingException();
+	   //throw new PendingException();
 	}
     
 }

@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONSerializer;
+import net.sf.json.xml.XMLSerializer;
 
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
@@ -21,26 +22,24 @@ public class JSONConverter extends AbstractConverter {
 	private InputStream fileInputStream;
 
 	public JSONConverter(InputStream fileInputStream){
-		this.fileInputStream=fileInputStream;
+		this.fileInputStream = fileInputStream;
 	}
 
 	public Document toXML() {
 		Document documentXML = null;
-		if(isValid()){
-			String jsonData;
+		
+		if(isValid()){			
 			try {
-				jsonData = IOUtils.toString(fileInputStream);
+				String jsonData = IOUtils.toString(fileInputStream);
 
-				net.sf.json.xml.XMLSerializer serializer = new net.sf.json.xml.XMLSerializer();       
+				XMLSerializer serializer = new XMLSerializer();       
 				JSON json = JSONSerializer.toJSON(jsonData);
 				String jsonToXML = serializer.write(json);
+				System.out.println("jsonToXML : "+jsonToXML);
 				StringReader stringReader = new StringReader(jsonToXML);
 				InputSource inputSource = new InputSource(stringReader);
-				DocumentBuilder documentBuilder;
-
-				documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+				DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 				documentXML = documentBuilder.parse(inputSource);
-
 			}
 			catch (IOException e) {
 				e.printStackTrace();

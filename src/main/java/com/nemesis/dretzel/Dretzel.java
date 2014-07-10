@@ -22,7 +22,7 @@ import org.apache.log4j.Logger;
  */
 public class Dretzel {
 	
-	private static Logger logger = Logger.getLogger(Dretzel.class);
+	//private static Logger LOGGER = Logger.getLogger(Dretzel.class);
 
 	/**
 	 * dretzel [-h] [inputdatafile] [outputdatafile]
@@ -39,11 +39,11 @@ public class Dretzel {
 			parser.addArgument(DretzelConstants.OUTPUT_DATA_FILE).nargs("?").type(String.class)
 			.setDefault(System.out).required(true);
 			Namespace namespace = parser.parseArgs(args);
-			logger.info("namespace : "+namespace);
+			//LOGGER.info("namespace : "+namespace);
 			String inputFile = namespace.getString(DretzelConstants.INPUT_DATA_FILE);
-			logger.info("inputFile : "+inputFile);
+			//LOGGER.info("inputFile : "+inputFile);
 			String outputFile = namespace.getString(DretzelConstants.OUTPUT_DATA_FILE);
-			logger.info("outputFile : "+outputFile);
+			//LOGGER.info("outputFile : "+outputFile);
 			DretzelApp dretzelApp = new DretzelApp();
 			dretzelApp.wrapData(inputFile, outputFile);
 		} catch (ArgumentParserException e) {
