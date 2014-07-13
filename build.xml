@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="dretzel" default="package" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:jacoco="antlib:org.jacoco.ant" xmlns:sonar="antlib:org.sonar.ant">
+<project name="dretzel" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:jacoco="antlib:org.jacoco.ant" xmlns:sonar="antlib:org.sonar.ant">
 
 	<property name="project.dir" value="${basedir}" />
 
@@ -26,11 +26,7 @@
 	<property name="cucumber-junit-report.dir" value="${dist.dir}/cucumber-junit-report" />	
 	<property name="main.class.name" value="com.nemesis.dretzel.Dretzel" />	
 
-	<target name="init-proxy">
-		<setproxy proxyhost="${proxy.host}" proxyport="${proxy.port}" />
-	</target>
-	
-	<target name="init" depends="init-proxy, install-ivy" />
+	<target name="init" depends="install-ivy" />
 
 	<target name="clean" depends="init" description="Clean distribution directory content">
 		<clean dir="${dist.dir}" />
@@ -47,13 +43,13 @@
 		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true"/>
 	</target>
 	
-	<target name="resolve-jar" depends="init-proxy" description="Resolve dependencies jar">
+	<target name="resolve-jar" description="Resolve dependencies jar">
 		<mkdir dir="${lib.dir}" />
 		<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact]-[revision](-[classifier]).[ext]"/>
 	</target>
 	
     <target name="init-classpath">
-		<path id="lib.path.ref">
+		<path id="lib.classpath">
 			<fileset dir="${lib.dir}/runtime" includes="*.jar"/>
 		</path>
     	<path id="src.main.path.ref">
@@ -65,12 +61,12 @@
     	</path>
     	<path id="test.path">
     	    <path refid="src.main.path.ref"/>
-    		<path refid="lib.path.ref"/>
+    		<path refid="lib.classpath"/>
     	</path>
     	<path id="compiled.class.path">
             <pathelement location="${classes.main.dir}"/>
             <pathelement location="${classes.test.dir}"/>
-    		<path refid="lib.path.ref"/>
+    		<path refid="lib.classpath"/>
     	</path>
     </target>
 	
@@ -78,7 +74,7 @@
 		<echo message="Compiling main sources." />
 		<compile src.dir="${src.main.dir}" classes.dir="${classes.main.dir}">
 			<classpath>
-				<path refid="lib.path.ref" />
+				<path refid="lib.classpath" />
 			</classpath>
 		</compile>
 	</target>
@@ -88,7 +84,7 @@
 		<compile src.dir="${src.test.dir}" classes.dir="${classes.test.dir}">
 			<classpath>
 				<path path="${classes.dir}" />
-				<path refid="lib.path.ref" />
+				<path refid="lib.classpath" />
 			</classpath>
 		</compile>
 	</target>
@@ -97,12 +93,13 @@
 		<echo message="Compiling sources." />
 		<compile src.dir="${src.dir}" classes.dir="${classes.dir}">
 			<classpath>
-				<path refid="lib.path.ref" />
+				<path refid="lib.classpath" />
 			</classpath>
 		</compile>
 	</target>
 
-	<target name="package" depends="init, compile, javadoc, pmd, jdepend, test, cobertura, site" description="Make package">
+	<!--
+	<target name="package" depends="init, compile, javadoc, pmd, jdepend, tests, cobertura, site" description="Make package">
 		<jar destfile="${jar.file}">
 			<fileset dir="${classes.dir}" />
 			 <manifest file="MANIFEST.MF">
@@ -116,6 +113,7 @@
 		</jar>
 		<echo message="Package ${jar.file} built" />
 	</target>
+	-->
 
 	<target name="package-with-libs" depends="init, compile" description="Make package">
 		<jar destfile="${jar.file}">
@@ -134,7 +132,7 @@
 		<java classname="${main.class.name}" fork="true">
 			<classpath>
 				<path path="${classes.dir}" />
-				<path refid="lib.path.ref" />
+				<path refid="lib.classpath" />
 			</classpath>
 		</java>
 	</target>
@@ -143,13 +141,14 @@
 		<java jar="${jar.file}" fork="true" />
 	</target>
 
-	<target name="test" depends="init, compile-test" description="Run unitary tests">
+	<!--
+	<target name="tests" depends="init, compile-test" description="Run unitary tests">
 		<mkdir dir="${reports.test.dir}" />
 		<junit printsummary="withOutAndErr" fork="yes">
 			<classpath>
 				<path path="${classes.test.dir}" />
 				<path path="${classes.dir}" />
-				<path refid="lib.path.ref" />
+				<path refid="lib.classpath" />
 			</classpath>
 			<formatter type="xml" />
 			<batchtest fork="yes" todir="${reports.test.dir}">
@@ -167,9 +166,10 @@
 			<report todir="${reports.test.dir}" />
 		</junitreport>
 	</target>
+	-->
 
 	<target name="javadoc" depends="init,  init-classpath" description="Generate javadoc">
-		<javadoc sourcepath="${src.dir}" classpathref="lib.path.ref" defaultexcludes="yes" destdir="${javadoc.dir}" author="true" version="true" use="true" windowtitle="${ant.project.name} API">
+		<javadoc sourcepath="${src.dir}" classpathref="lib.classpath" defaultexcludes="yes" destdir="${javadoc.dir}" author="true" version="true" use="true" windowtitle="${ant.project.name} API">
 			<tag name="todo" scope="all" description="To do:" />
 		</javadoc>
 	</target>
@@ -267,7 +267,7 @@
 		    <java classname="${main.class.name}" fork="true">
 				<classpath>
 					<path refid="compile.classpath" />
-					<path refid="lib.path.ref" />
+					<path refid="lib.classpath" />
 				</classpath>
 		    </java>
 		</jacoco:coverage>
@@ -285,7 +285,7 @@
 	</target>
 		
 	<target name="jacoco" depends="init, init-classpath, jacoco-instrument" description="Run JaCoCo" />
-	
+	<!--
 	<target name="install-cobertura" depends="init" unless="skip.download">
 		<get src="http://sourceforge.net/projects/cobertura/files/cobertura/${cobertura.version}/${cobertura.archive}" dest="${plugins.dir}" usetimestamp="true"/>
 		<unzip overwrite="false" src="${plugins.dir}/${cobertura.archive}" dest="${plugins.dir}"/>
@@ -329,7 +329,7 @@
 				<path refid="src.path.ref" />
 			</instrumentationClasspath>
 			<auxClasspath>
-				<path refid="lib.path.ref" />
+				<path refid="lib.classpath" />
 			</auxClasspath>
 		</cobertura-instrument>		
 	</target>
@@ -339,7 +339,94 @@
 	</target>
 	
 	<target name="cobertura" depends="init, init-classpath, cobertura-instrument, cobertura-report" description="Run code coverage instrumentation" />
+	-->
+	
+	<target name="install-cobertura" depends="init" unless="skip.download">
+		<get src="http://sourceforge.net/projects/cobertura/files/cobertura/${cobertura.version}/${cobertura.archive}" dest="${plugins.dir}" usetimestamp="true"/>
+		<unzip overwrite="false" src="${plugins.dir}/${cobertura.archive}" dest="${plugins.dir}"/>
+	</target>
+	
+	<target name="init-cobertura" depends="install-cobertura">
+		<path id="cobertura.classpath">
+			<fileset dir="${cobertura.bin.dir}">
+				<include name="cobertura*.jar" />
+				<include name="lib/**/*.jar" />
+			</fileset>
+		</path>
+		<taskdef classpathref="cobertura.classpath" resource="tasks.properties"/>
+	</target>
 
+	<target name="instrument" depends="init, init-cobertura, compile">
+		<delete file="${cobertura.data.file}"/>
+		<delete dir="${cobertura.instrumented.dir}" />
+		<mkdir dir="${cobertura.instrumented.dir}" />
+		<cobertura-instrument todir="${cobertura.instrumented.dir}" datafile="${cobertura.data.file}">
+			<ignore regex="org.apache.log4j.*" />
+			<fileset dir="${classes.dir}">
+				<include name="**/*.class" />
+				<exclude name="**/*Test.class" />
+			</fileset>
+			<auxClasspath>
+				<path refid="lib.classpath" />
+			</auxClasspath>
+		</cobertura-instrument>
+	</target>
+
+	<target name="tests" depends="init, init-cobertura, compile">
+		<delete dir="${reports.xml.dir}" />
+		<mkdir dir="${reports.xml.dir}" />
+		<junit fork="yes" dir="${basedir}" failureProperty="test.failed">	
+			<classpath location="${cobertura.instrumented.dir}" />
+			<classpath location="${classes.dir}" />
+			<classpath refid="cobertura.classpath" />
+			<classpath refid="lib.classpath" />
+			<formatter type="plain" />
+			<formatter type="xml" />
+			<test name="${testcase}" todir="${reports.xml.dir}" if="testcase" />
+			<batchtest todir="${reports.xml.dir}" unless="testcase">
+				<fileset dir="${src.dir}">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+		<junitreport todir="${reports.xml.dir}">
+			<fileset dir="${reports.xml.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="frames" todir="${reports.html.dir}" />
+		</junitreport>
+	</target>
+
+	<target name="coverage-check">
+		<cobertura-check branchrate="75" totallinerate="100" />
+	</target>
+
+	<target name="coverage-report">
+		<delete dir="${coverage.xml.dir}" />
+		<mkdir dir="${coverage.xml.dir}" />
+		<delete dir="${coverage.html.dir}" />
+		<mkdir dir="${coverage.html.dir}" />
+		<cobertura-report srcdir="${src.dir}" datafile="${cobertura.data.file}" destdir="${coverage.xml.dir}" format="xml" />
+		<cobertura-report srcdir="${src.dir}" datafile="${cobertura.data.file}" destdir="${coverage.html.dir}" format="html" />
+	</target>
+
+	<target name="summary-coverage-report">
+		<delete dir="${coverage.summaryxml.dir}" />
+		<mkdir dir="${coverage.summaryxml.dir}" />
+		<cobertura-report srcdir="${src.dir}" destdir="${coverage.summaryxml.dir}" format="summaryXml" />
+	</target>
+
+	<target name="alternate-coverage-report">
+		<cobertura-report destdir="${coverage.html.dir}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.java" />
+			</fileset>
+		</cobertura-report>
+	</target>
+	
+	<target name="coverage" depends="compile, instrument, tests, coverage-report, summary-coverage-report, alternate-coverage-report" 
+		description="Compile, instrument ourself, run the tests and generate JUnit and coverage reports." />
+	
 	<target name="install-jdepend" depends="init" unless="skip.download">
 		<get src="http://www.clarkware.com/software/${jdepend.archive}" dest="${plugins.dir}" usetimestamp="true"/>
 		<unzip overwrite="false" src="${plugins.dir}/${jdepend.archive}" dest="${plugins.dir}"/>
