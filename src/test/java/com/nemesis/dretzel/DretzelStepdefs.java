@@ -14,8 +14,6 @@ public class DretzelStepdefs {
 		private String outputdatafile;
 	}
 	
-	private static final String SAMPLE_DIRECTORY = "sample/";
-	
 	@Given("^I convert source data file to destination data file$")
 	public void I_convert_source_data_file_to_destination_data_file(List<ConverterItem> items) {
 		
@@ -24,7 +22,7 @@ public class DretzelStepdefs {
 		for (ConverterItem item : items) {
 			System.out.println("item.inputdatafile : "+item.inputdatafile);
 			System.out.println("item.outputdatafile : "+item.outputdatafile);
-			args[0] = SAMPLE_DIRECTORY + item.inputdatafile;
+			args[0] = DretzelConstants.SAMPLE_DIRECTORY + item.inputdatafile;
 			System.out.println("args[0] : "+args[0]);
 			args[1] = item.outputdatafile;
 			System.out.println("args[1] : "+args[1]);

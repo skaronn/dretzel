@@ -37,10 +37,8 @@ import com.nemesis.dretzel.converter.YAMLConverter;
 
 public class DretzelApp {
 	
-	//private static Logger LOGGER = Logger.getLogger(DretzelApp.class);
+	private static Logger LOGGER = Logger.getLogger(DretzelApp.class);
 	
-	private static final String DESTINATION_DIR = "/output/";
-
 	private enum DataType {
 		XML, JSON, CSV, YML, YAML, SQL, DAT, ASC, BIN, BINARY, HEX, HEXADECIMAL, HTML
 	}	
@@ -51,43 +49,31 @@ public class DretzelApp {
 		InputStream inputStream = null;
 		
 		String dateFormat = DretzelConstants.OUTPUT_DIRECTORY_FORMATER.format(new Date());
-		
-		/*LOGGER.debug("dateFormat : "+dateFormat);		
-		LOGGER.debug("inputFile : "+inputFile);
-		LOGGER.debug("outputFile : "+outputFile);*/
 
 		// Load file input stream
 		inputStream = Utils.getInputStreamFromFile(this, inputFile);
-		//LOGGER.debug("inputStream : "+inputStream);
 		
 		// Load input stream content as String
 		try {
-			fileContent = IOUtils.toString(inputStream);
-			//LOGGER.debug("fileContent : "+fileContent);	
+			fileContent = IOUtils.toString(inputStream);	
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		String sourceFormat = Utils.getFileExtension(inputFile);
-		//LOGGER.debug("sourceFormat : "+sourceFormat);
 
 		String destinationFormat = Utils.getFileExtension(outputFile);
-		//LOGGER.debug("destinationFormat : "+destinationFormat);
 		
 		// Convert data format
 		String outputFileContent = getConvertFile(inputFile, sourceFormat, destinationFormat);
-		//LOGGER.debug("outputFileContent : "+outputFileContent);
 
 		// Create files in output destination directory
-		String destinationDirectory = DESTINATION_DIR + dateFormat + "." + Utils.getFileExtension(inputFile) + "-to-" + Utils.getFileExtension(outputFile) + "/" ;
+		String destinationDirectory = DretzelConstants.DESTINATION_DIR + dateFormat + "." + Utils.getFileExtension(inputFile) + "-to-" + Utils.getFileExtension(outputFile) + "/" ;
 		String destinationInputFilePath = destinationDirectory + Utils.getFileName(inputFile);
 		String destinationOutputFilePath = destinationDirectory + outputFile;		
 
-		String inputFilePath = createFile(destinationInputFilePath, fileContent);	
-		//LOGGER.debug(inputFilePath+" succesfully saved !!!");		
-
+		String inputFilePath = createFile(destinationInputFilePath, fileContent);
 		String outputFilePath = createFile(destinationOutputFilePath, outputFileContent);
-		//LOGGER.debug(outputFilePath+" succesfully saved !!!");
 	}
 	
 	/**
@@ -101,21 +87,21 @@ public class DretzelApp {
 	{
 		InputStream inputStream = Utils.getInputStreamFromFile(this, filePath);
 
-		String file = null;
+		String tempFile = null;
 		String dataFileContent = null;
 
 		if(DataType.BIN.equals(DataType.valueOf(destinationFormat.toUpperCase())) || DataType.BINARY.equals(DataType.valueOf(destinationFormat.toUpperCase())))
 		{
 			try {
-				file = IOUtils.toString(inputStream);
+				tempFile = IOUtils.toString(inputStream);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 
-			System.err.println("BIN - file : "+file);
+			System.err.println("BIN - file : "+tempFile);
 
 			StringBuffer strBuffer = new StringBuffer();
-			byte[] byteArray = file.getBytes();
+			byte[] byteArray = tempFile.getBytes();
 
 			for (int i = 0; i < byteArray.length; i++)
 			{
@@ -128,14 +114,14 @@ public class DretzelApp {
 		else if(DataType.HEX.equals(DataType.valueOf(destinationFormat.toUpperCase())) || DataType.HEXADECIMAL.equals(DataType.valueOf(destinationFormat.toUpperCase())))
 		{
 			try {
-				file = IOUtils.toString(inputStream);
+				tempFile = IOUtils.toString(inputStream);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
 
-			System.err.println("HEX - file : "+file);
+			System.err.println("HEX - file : "+tempFile);
 
-			char[] chars = file.toCharArray();
+			char[] chars = tempFile.toCharArray();
 			StringBuffer stringBuffer = new StringBuffer();
 
 			for (int i = 0; i < chars.length; i++)
@@ -146,40 +132,103 @@ public class DretzelApp {
 
 			dataFileContent = stringBuffer.toString();
 		}
-		else{
-			dataFileContent = "dummy";
-			
+		else{			
 			// Convert Data to XML DOM object
 			Document documentObject = convertGivenDataToXMLDOMObject(inputStream, sourceFormat);
-			System.out.println("documentObject : "+documentObject);
-			/*
-			// Create temporary file from XML DOM object
-			DOMImplementationLS domImplementationLS = (DOMImplementationLS) xmlDOMObject.getImplementation();			
-			LSOutput lsOutput =  domImplementationLS.createLSOutput();			
-			lsOutput.setEncoding("UTF-8");
-			lsOutput.setCharacterStream(new StringWriter());
-			LSSerializer lsSerializer = domImplementationLS.createLSSerializer();
-			lsSerializer.write(xmlDOMObject, lsOutput);
+			
+			// Formating and encoding XML DOM object content
+			String formattedXMLString = Utils.formatDOMObject(documentObject);
 
-			// Format XML DOM string
-			String xmlDOMObjectAsStringContent = formatDocumentObject(xmlDOMObject);			
-			System.out.println("xmlDOMObjectAsStringContent : "+xmlDOMObjectAsStringContent);
-
+			documentObject = Utils.createDocumentObjectFormString(formattedXMLString);
+			
 			// Create string from XML DOM object in resource directory
-			String xmlTmpFilePath = this.getClass().getResource(SAMPLE_BASE_DIRECTORY).getPath() + TMP_XML_DATA;
-			System.out.println("xmlTmpFilePath : "+xmlTmpFilePath);
+			tempFile = DretzelConstants.DESTINATION_DIR + DretzelConstants.TEMP_XML_FILE ;
+			System.out.println("tempXMLPath : "+tempFile);
 
 			// Create temporary file from string XML DOM object content
-			String xmlFilePath = createFile(xmlTmpFilePath, xmlDOMObjectAsStringContent);			
-			System.out.println("xmlFilePath : "+xmlFilePath);
+			String tempXMLFilePath = createFile(tempFile, Utils.documentToString(documentObject));			
+			System.out.println("tempXMLFilePath : "+tempXMLFilePath);
 
-			dataFileContent = convertDOMObjectToGivenData(xmlDOMObject, destinationFormat, inputStream, SAMPLE_BASE_DIRECTORY + TMP_XML_DATA);
-			*/		
-		}
-		System.out.println("dataFileContent : "+dataFileContent);
+			dataFileContent = convertDOMObjectToGivenData(documentObject, destinationFormat, inputStream, tempXMLFilePath);
+			System.out.println("dataFileContent : "+dataFileContent);
+		}		
 		return dataFileContent;
 	}
 	
+	/**
+	 * Converts an XML object (DOM) to data type represent as String
+	 * @param {@link Document} xml object
+	 * @param outputType data type
+	 * @return {@link String} outputString 
+	 */
+	private final String convertDOMObjectToGivenData(Document documentObject, String outputFormatType, InputStream inputStream, String filePath)
+	{		
+		String outputDataString = null;
+
+		switch(DataType.valueOf(outputFormatType.toUpperCase()))
+		{
+			case JSON:
+				outputDataString = new JSONConverter().XMLtoJSON(documentObject);
+				break;
+				
+			case YML:
+			case YAML:			
+				outputDataString = new YAMLConverter().XMLtoYAML(documentObject, inputStream, filePath);
+				break;
+	
+	//		case CSV:
+	//			Element elem = xmlObject.getDocumentElement();
+	//			NodeList nodelist = elem.getChildNodes();
+	//			//displayLevel(nodelist, 1);
+	//			int maxDepth = detectXMLMaxDepth(nodelist, CSV_MAX_LEVEL);
+	//			//TODO: detect depth, if more than 1 level throw exception
+	//			//IllegalFormatException();ParseExceptionDataFormatException;
+	//			if(maxDepth > CSV_MAX_LEVEL)
+	//			{
+	//				throw new UnknownFormatConversionException("Format not supported, XML file too deep : "+maxDepth);
+	//			}
+	//			try {
+	//				outputDataString = xmlToCSV.convert(xmlObject);
+	//			} catch (Exception e){
+	//				e.printStackTrace();
+	//			}
+	//			break;	
+	
+	//		case SQL:
+	//			Connection conn = null;
+	//			Reader reader = null;
+	//			try {
+	//				//Class.forName("org.hsqldb.jdbcDriver");
+	//				//conn = DriverManager.getConnection("jdbc:hsqldb:mem:sptest", "sa", "");
+	//				System.out.println("filePath " + filePath);
+	//				reader = Resources.getResourceAsReader(filePath);				
+	//				ScriptRunner runner = new ScriptRunner(conn);
+	//				runner.setDelimiter("]");
+	//				runner.setLogWriter(null);
+	//				runner.setErrorLogWriter(null);
+	//				runner.runScript(reader);
+	//				//conn.commit();
+	//				//conn.close();
+	//				System.out.println("reader " + reader);
+	//				reader.close();
+	//				/*} catch (ClassNotFoundException e) {
+	//					e.printStackTrace();
+	//				} catch (SQLException e) {
+	//					e.printStackTrace();*/					
+	//			} catch (IOException e) {
+	//				e.printStackTrace();					
+	//			} 
+	//			break;
+	
+			case XML:
+				outputDataString = Utils.formatDOMObject(documentObject);
+			default:
+				break;
+		}
+		System.out.println("outputDataString : "+outputDataString);
+		return outputDataString;		
+	}
+
 	/**
 	 * Creates a new XML object (DOM) object from input stream and data type.
 	 * @param {@link String} filePath 
@@ -198,34 +247,47 @@ public class DretzelApp {
 
 			case JSON:
 				dataConverter = new JSONConverter(fileInputStream);
+				documentXML = dataConverter.toXML();
 				break;
 
 			case CSV:
 				dataConverter = new CSVConverter(fileInputStream);
+				documentXML = dataConverter.toXML();
 				break;
 
 			case YML:
 			case YAML:
 				dataConverter = new YAMLConverter();
+				documentXML = dataConverter.toXML();
 				break;
 
 			case SQL:
 				dataConverter = new SQLConverter();
+				documentXML = dataConverter.toXML();
 				break;
 
 			case XML:
+				String xmlContent = IOUtils.toString(fileInputStream);
+				documentXML = Utils.createDocumentObjectFormString(xmlContent);
 			default:
 				break;				
 			}
-						
-			documentXML = dataConverter.toXML();
-			
-			System.out.println("documentXML : "+documentXML);
-			
+		} catch (IOException e) {
+			e.printStackTrace();	
 		} catch (TransformerFactoryConfigurationError e) {
 			e.printStackTrace();
+		}		
+		
+		if (documentXML == null){
+			documentXML = getFakeDocument();
 		}
 		
+		System.out.println("documentXML : "+documentXML);
+
+		return documentXML;		
+	}
+	
+	private Document getFakeDocument() {
 		Document fakeDocument = new Document() {
 			
 			@Override
@@ -640,18 +702,13 @@ public class DretzelApp {
 				return null;
 			}
 		};
-		
-		if (documentXML == null){
-			documentXML = fakeDocument;
-		}
-
-		return documentXML;		
+		return fakeDocument;
 	}
-	
+
 	/**
 	 * Create a file with the specified data content.
 	 * @param fileContent data as String
-	 * @param extension (SQL, XML, etc)
+	 * @param extension (JSON, XML, YAML, SQL, etc)
 	 * @return
 	 */
 	private final String createFile(String destinationFilePath, String fileContent)
@@ -660,6 +717,7 @@ public class DretzelApp {
 		try {
 			file = new File(destinationFilePath);
 			FileUtils.writeStringToFile(file, fileContent);
+			System.out.println("file : "+file.getAbsoluteFile());
 		}
 		catch (IOException e) {
 			e.printStackTrace();
