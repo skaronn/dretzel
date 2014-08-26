@@ -27,16 +27,16 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
+import com.nemesis.dretzel.DretzelApp;
 import com.nemesis.dretzel.DretzelConstants;
 import com.nemesis.dretzel.Utils;
 
-public class YAMLConverter extends AbstractConverter {
-
-	private InputStream fileInputStream;
-
-	public Document toXML()
+public class YAMLConverter implements IConverter
+{
+	
+	public Document toXML(InputStream fileInputStream)
 	{
-		Document documentXML = null;
+		Document documentObject = null;
 
 		if(isValid())
 		{
@@ -65,7 +65,7 @@ public class YAMLConverter extends AbstractConverter {
 
 				String outputXMLString = stringBuilder.toString().trim();
 				System.out.println("outputXMLString : " +outputXMLString);					
-				documentXML = Utils.createDocumentObjectFormString(outputXMLString);
+				documentObject = Utils.createDocumentObjectFormString(outputXMLString);
 				reader.close();
 			}
 			catch (IOException e) {
@@ -73,7 +73,7 @@ public class YAMLConverter extends AbstractConverter {
 			}
 
 		}
-		return documentXML;
+		return documentObject;
 	}
 
 	/**
@@ -113,7 +113,8 @@ public class YAMLConverter extends AbstractConverter {
 				stringBuilder.append("</" +formatedKey+ ">");
 			}		
 		}
-		else if(objectCollection.getClass() == ArrayList.class){
+		else if(objectCollection.getClass() == ArrayList.class)
+		{
 			//if (LOGGER.isTraceEnabled()) LOGGER.debug("[ArrayList] : "+objectCollection);
 			System.out.println("[ArrayList] : "+objectCollection);
 			ArrayList array = (ArrayList) objectCollection;
@@ -124,11 +125,13 @@ public class YAMLConverter extends AbstractConverter {
 			}
 
 		}
-		else if(objectCollection.getClass() == LinkedList.class){			
+		else if(objectCollection.getClass() == LinkedList.class)
+		{			
 			//if (LOGGER.isTraceEnabled()) LOGGER.debug("[LinkedList] : "+objectCollection);
 			System.out.println("[LinkedList] : "+objectCollection);
 		}
-		else if(objectCollection.getClass() == String.class){
+		else if(objectCollection.getClass() == String.class)
+		{
 			//if (LOGGER.isTraceEnabled()) LOGGER.debug("[String] : "+objectCollection);
 			System.out.println("[String] : "+objectCollection);
 			stringBuilder.append(objectCollection);
@@ -144,51 +147,44 @@ public class YAMLConverter extends AbstractConverter {
 
 	/**
 	 * 
-	 * 
-	 * @param documentObject
-	 * @param inputStream
-	 * @param outputStream
 	 * @param filePath
 	 * @return 
 	 */
-	public String XMLtoYAML(Document documentObject,
-			InputStream inputStream, String filePath)
+	@Override
+	public String toGivenData(String xmlFilePath)
 	{
-		
-		OutputStream outputStream = new ByteArrayOutputStream();
-		
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		factory.setNamespaceAware(true);
-		factory.setValidating(true);
-		
+		Document documentObject = null;				
 		String output = null;
 		
 		try {
-
+			
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setNamespaceAware(true);
+			factory.setValidating(true);
 			DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-			System.out.println("filePath : "+filePath);
 
-			URL datafileURL = this.getClass().getResource(filePath);	
-			System.out.println("datafileURL - 1 : "+datafileURL);
-
-			File datafile =  new File(datafileURL.getPath());
-			System.out.println("datafile - 1 : "+datafile);
+			File datafile =  new File(xmlFilePath);
+			System.out.println("datafile : "+datafile);
 
 			documentObject = documentBuilder.parse(datafile);
 			System.out.println("file document : "+documentObject);
 
-			// Use a Transformer for output
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();			
-			URL stylesheetURL = this.getClass().getResource(DretzelConstants.SAMPLE_DIRECTORY + "xml2yaml.xsl");
-			File stylesheet = new File(stylesheetURL.getPath());
-			System.out.println("stylesheet : "+stylesheet);			
-			StreamSource stylesource = new StreamSource(stylesheet);
-			Transformer transformer = transformerFactory.newTransformer(stylesource);
-
+			// Use a Transformer for output					
+			URL stylesheetURL = Utils.getResourceFileURL(new DretzelApp(), "xml2yaml.xsl");
+			System.out.println("stylesheetURL : "+stylesheetURL);
+			File stylesheetFile = new File(stylesheetURL.getPath());
+			System.out.println("stylesheetFile : "+stylesheetFile);			
+			StreamSource stylesource = new StreamSource(stylesheetFile);
+			System.out.println("stylesource : "+stylesource);		
 			DOMSource source = new DOMSource(documentObject);
+			System.out.println("source : "+source);
+			OutputStream outputStream = new ByteArrayOutputStream();
 			StreamResult result = new StreamResult(outputStream);
+			System.out.println("result : "+result);	
+			Transformer transformer = TransformerFactory.newInstance().newTransformer(stylesource);
 			transformer.transform(source, result);
-			output = result.getWriter().toString();
+			System.out.println("outputStream.toString() : "+outputStream.toString());	
+			output = outputStream.toString();
 		}
 		catch (TransformerConfigurationException tce) {
 			// Error generated by the parser
@@ -237,6 +233,7 @@ public class YAMLConverter extends AbstractConverter {
 			// I/O error
 			ioe.printStackTrace();
 		}
+		System.out.println("output : "+output);	
 		return output;
 	}
 

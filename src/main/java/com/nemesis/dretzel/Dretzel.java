@@ -1,11 +1,16 @@
 package com.nemesis.dretzel;
 
+import java.io.InputStream;
+import java.net.URL;
+
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.apache.log4j.Logger;
+
+import com.nemesis.dretzel.converter.IConverter;
 
 
 /**
@@ -20,9 +25,10 @@ import org.apache.log4j.Logger;
  * 
  * @author adgnabro
  */
-public class Dretzel {
+public class Dretzel
+{
 	
-	//private static Logger LOGGER = Logger.getLogger(Dretzel.class);
+	private static Logger LOGGER = Logger.getLogger(Dretzel.class);
 
 	/**
 	 * dretzel [-h] [inputdatafile] [outputdatafile]
@@ -39,14 +45,16 @@ public class Dretzel {
 			parser.addArgument(DretzelConstants.OUTPUT_DATA_FILE).nargs("?").type(String.class)
 			.setDefault(System.out).required(true);
 			Namespace namespace = parser.parseArgs(args);
-			//LOGGER.info("namespace : "+namespace);
+			System.out.println("namespace : "+namespace);
 			String inputFile = namespace.getString(DretzelConstants.INPUT_DATA_FILE);
-			//LOGGER.info("inputFile : "+inputFile);
+			System.out.println("inputFile : "+inputFile);
 			String outputFile = namespace.getString(DretzelConstants.OUTPUT_DATA_FILE);
-			//LOGGER.info("outputFile : "+outputFile);
+			System.out.println("outputFile : "+outputFile);
 			DretzelApp dretzelApp = new DretzelApp();
 			dretzelApp.wrapData(inputFile, outputFile);
-		} catch (ArgumentParserException e) {
+		}
+		catch (ArgumentParserException e)
+		{
 			parser.handleError(e);
 			System.exit(1);
 		}
