@@ -1,12 +1,13 @@
 package com.nemesis.dretzel.converter;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -14,19 +15,17 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.nemesis.dretzel.DretzelConstants;
+import com.nemesis.dretzel.Utils;
 
 public class CSVConverter implements IConverter
 {
@@ -34,7 +33,6 @@ public class CSVConverter implements IConverter
 	private static final char[] CSV_SEPARATORS = {',',';'};
 	private static final int CSV_MAX_LEVEL = 2;
 
-	// Default private/protected ?
 	private String result;
 	private String emptyValue = "-";
 	private String separator = ",";
@@ -51,54 +49,52 @@ public class CSVConverter implements IConverter
 	private boolean gotFirstElement;
 	private int nodeLevel;
 
-	public Document toXML(InputStream fileInputStream)
+	public Document toXML(InputStream inputStream)
 	{
 		Document documentObject = null;
 
 		if(isValid())
 		{
-			Reader reader = new InputStreamReader(fileInputStream);
-			//char detectedSeparator = ',' ;
-			char detectedSeparator = detectCSVSeparator(new StringReader(""), CSV_SEPARATORS);
-			System.out.println("CSV - detectedSeparator : "+detectedSeparator);
-			CSVReader csvReader = new CSVReader(reader, detectedSeparator);
-			String[] lines = null;        
-			String[] headers = null;
 			try {
+				InputStream bufferedInputStream = new BufferedInputStream(inputStream);
+				Reader reader = new InputStreamReader(bufferedInputStream);	
+				bufferedInputStream.mark(0);
+				char detectedSeparator = detectCSVSeparator(new BufferedReader(reader), CSV_SEPARATORS);
+				System.out.println("CSV - detectedSeparator : "+detectedSeparator);
+				bufferedInputStream.reset();
+				CSVReader csvReader = new CSVReader(reader, detectedSeparator);
+				System.out.println("CSV - csvReader :  "+csvReader);
+				String[] lines = null;        
+				String[] headers = null;
+
 				headers = csvReader.readNext();
-
 				System.out.println("CSV - headers :  "+headers);
-				StringBuilder stringBuilder = new StringBuilder();
-				stringBuilder.append(DretzelConstants.XML_CHARSET);
-				stringBuilder.append("<"+DretzelConstants.XML_ROOTNAME+">");
+				if(headers != null)
+				{					
+					StringBuilder stringBuilder = new StringBuilder();
+					stringBuilder.append(DretzelConstants.XML_CHARSET);
+					stringBuilder.append("<"+DretzelConstants.XML_ROOTNAME+">");
 
-				while((lines  = csvReader.readNext()) != null )
-				{
-					stringBuilder.append("<"+DretzelConstants.XML_DATA+">");
-					for (int i = 0; i < headers.length; i++) 
+					while((lines  = csvReader.readNext()) != null )
 					{
-						stringBuilder.append("<"+headers[i].replaceAll("\\s", "")+">");
-						stringBuilder.append(lines[i]);
-						stringBuilder.append("</"+headers[i].replaceAll("\\s", "")+">");
+						stringBuilder.append("<"+DretzelConstants.XML_DATA+">");
+						for (int i = 0; i < headers.length; i++) 
+						{
+							stringBuilder.append("<"+headers[i].replaceAll("\\s", "")+">");
+							stringBuilder.append(lines[i]);
+							stringBuilder.append("</"+headers[i].replaceAll("\\s", "")+">");
+						}
+						stringBuilder.append("</"+DretzelConstants.XML_DATA+">");
 					}
-					stringBuilder.append("</"+DretzelConstants.XML_DATA+">");
-				}
-				stringBuilder.append("</"+DretzelConstants.XML_ROOTNAME+">");
+					stringBuilder.append("</"+DretzelConstants.XML_ROOTNAME+">");
 
-				String outputXMLString = stringBuilder.toString();
-				csvReader.close();
-				System.out.println("CSV - outputXMLString =  "+outputXMLString);
-				StringReader stringReader = new StringReader(outputXMLString);
-				InputSource inputSource = new InputSource(stringReader);
-				documentObject = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(inputSource);
+					csvReader.close();
+					String outputXMLString = stringBuilder.toString();
+					System.out.println("CSV - outputXMLString =  "+outputXMLString);
+					documentObject = Utils.createDocumentObjectFormString(outputXMLString);
+				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (ParserConfigurationException e) {
-				e.printStackTrace();
-			}
-			catch (SAXException e) {
 				e.printStackTrace();
 			}
 		}
@@ -109,10 +105,9 @@ public class CSVConverter implements IConverter
 		return true;
 	}
 
-	private char detectCSVSeparator(Reader reader, char[] separartors)
+	private char detectCSVSeparator(BufferedReader bufferReader, char[] separartors)
 	{
 		char separatorDetected = separartors[0];
-		BufferedReader bufferReader = new BufferedReader(reader);
 		try {
 			String line = bufferReader.readLine();
 			System.err.println("line : " + line);
@@ -120,20 +115,19 @@ public class CSVConverter implements IConverter
 			{
 				String[] separated = line.split(String.valueOf(separartors[i]));
 				if(separated.length > 1 )
-				{
-					System.err.println("separartor : " + String.valueOf(separartors[i]));
+				{					
 					System.err.println("separated.length : " + separated.length);
 					separatorDetected = separartors[i];
 					break;
 				}
 			}
-		} catch (IOException e) {
+		} catch (IOException e)
+		{
 			e.printStackTrace();
 		}
 		return separatorDetected;		
 	}
 
-	@Override
 	public String toGivenData(String xmlFilePath)
 	{
 		String output = null;
@@ -148,10 +142,10 @@ public class CSVConverter implements IConverter
 			System.out.println("file document : "+documentObject);
 			int maxDepthNodeDepth = getMaxNodeDepth(documentObject.getDocumentElement().getChildNodes(), 0);
 			System.out.println("maxDepthNodeDepth : "+maxDepthNodeDepth);
-//			if(maxDepthNodeDepth > CSV_MAX_LEVEL)
-//			{
-//				throw new java.util.UnknownFormatConversionException("Format not supported, XML file too deep : "+maxDepthNodeDepth);
-//			}
+			if(maxDepthNodeDepth > CSV_MAX_LEVEL)
+			{
+				throw new java.util.UnknownFormatConversionException("Format not supported, XML file too deep : "+maxDepthNodeDepth);
+			}
 			output = convert(documentObject);
 			System.out.println("output : "+output);
 		} catch (Exception e){

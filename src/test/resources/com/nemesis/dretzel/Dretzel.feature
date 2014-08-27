@@ -1,5 +1,5 @@
 Feature: Dretzel convertion acceptance tests
-
+	
 Scenario: As a user I want to convert XML data file to XML
 	Given I convert source data file to destination data file
 	| inputdatafile	| outputdatafile |
@@ -49,16 +49,16 @@ Scenario: As a user I want to convert JSON data file to YAML
 	When I validate source data file content
 	Then I validate destination data file content
 	
-Scenario: As a user I want to convert CSV data file to XML
-	Given I convert source data file to destination data file
-	| inputdatafile	 | outputdatafile |
-	| example01.csv | example01.xml |
-	When I validate source data file content
-	Then I validate destination data file content
-	
 Scenario: As a user I want to convert XML data file to CSV
 	Given I convert source data file to destination data file
 	| inputdatafile	 | outputdatafile |
 	| example01.xml | example01.csv |
+	When I validate source data file content
+	Then I validate destination data file content	
+
+Scenario: As a user I want to convert CSV data file to XML
+	Given I convert source data file to destination data file
+	| inputdatafile	 | outputdatafile |
+	| example01.csv | example01.xml |
 	When I validate source data file content
 	Then I validate destination data file content

@@ -1,16 +1,11 @@
 package com.nemesis.dretzel;
 
-import java.io.InputStream;
-import java.net.URL;
-
 import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.apache.log4j.Logger;
-
-import com.nemesis.dretzel.converter.IConverter;
 
 
 /**

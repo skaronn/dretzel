@@ -18,7 +18,6 @@ public class SQLConverter implements IConverter {
 		return true;
 	}
 
-	@Override
 	public String toGivenData(String xmlFilePath)
 	{
 		return null;
