@@ -2,7 +2,6 @@ package com.nemesis.dretzel.converter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -137,13 +136,14 @@ public class CSVConverter implements IConverter
 			factory.setNamespaceAware(true);
 			factory.setValidating(true);
 			File datafile =  new File(xmlFilePath);
-			System.out.println("datafile : "+datafile);			
+			//System.out.println("datafile : "+datafile);			
 			Document documentObject = factory.newDocumentBuilder().parse(datafile);
-			System.out.println("file document : "+documentObject);
+			//System.out.println("file document : "+documentObject);
 			int maxDepthNodeDepth = getMaxNodeDepth(documentObject.getDocumentElement().getChildNodes(), 0);
-			System.out.println("maxDepthNodeDepth : "+maxDepthNodeDepth);
+			//System.out.println("maxDepthNodeDepth : "+maxDepthNodeDepth);
 			if(maxDepthNodeDepth > CSV_MAX_LEVEL)
 			{
+				//System.exit(1);
 				throw new java.util.UnknownFormatConversionException("Format not supported, XML file too deep : "+maxDepthNodeDepth);
 			}
 			output = convert(documentObject);
@@ -183,14 +183,34 @@ public class CSVConverter implements IConverter
 	 */
 	private String convert(Document root) 
 	{
-		this.parseFields((Node) root, 0);
+		parseFields((Node) root, 0);
 
-		if (this.loopFieldName == null) {
-			this.determineLoopFieldName();
+		if (loopFieldName == null)
+		{
+			determineLoopFieldName();
 		}
 
-		this.parseValues((Node) root, 0);
-		return this.result;
+		parseValues((Node) root, 0);
+		
+		StringBuilder str = new StringBuilder();
+		
+		for (Map.Entry<String, String> entry : fields.entrySet())
+		{
+			str.append(entry.getValue() +",");
+		}
+		
+		String head = str.substring(0, str.length() - 1);
+		
+		str = new StringBuilder();
+		
+		for (Map.Entry<String, String> entry : values.entrySet())
+		{
+		    str.append(entry.getValue() +",");
+		}
+		
+		String data = str.substring(0, str.length() - 1);		
+		return head +"\n"+ data;
+//		return result;
 	}	
 
 	/**
@@ -200,13 +220,15 @@ public class CSVConverter implements IConverter
 	 */
 	private void parseFields(Node node, int level)
 	{
-		addToLoopFields(level,node.getNodeName());
-		if (node.hasAttributes()) {
+		addToLoopFields(level, node.getNodeName());
+		
+		if (node.hasAttributes())
+		{
 			NamedNodeMap attributes = node.getAttributes();
 			for (int i = 0; i < attributes.getLength(); i++)
 			{
 				Node attribute = attributes.item(i);
-				this.addToFields(level, node.getNodeName(), attribute.getNodeName());
+				addToFields(level, node.getNodeName(), attribute.getNodeName());
 			}
 		}
 
@@ -219,7 +241,7 @@ public class CSVConverter implements IConverter
 			Node child = children.item(i);
 			if (child instanceof Element) {
 				haselement = true;
-				this.parseFields(child, level+1);
+				parseFields(child, level+1);
 			}
 			else if (child.getNodeName().equals("#text") && 
 					!child.getNodeValue().trim().isEmpty()) {
@@ -239,12 +261,12 @@ public class CSVConverter implements IConverter
 	 */
 	private void addToLoopFields(int level, String nodeName)
 	{
-		String key = this.makeKey(level, nodeName, null);
-		String name = this.makeKey(null, nodeName, null);
-		this.loopFields.put(key, name);
-		Integer loop = this.loops.get(key);
+		String key = makeKey(level, nodeName, null);
+		String name = makeKey(null, nodeName, null);
+		loopFields.put(key, name);
+		Integer loop = loops.get(key);
 		if (loop == null) loop = 0;
-		this.loops.put(key, loop+1);
+		loops.put(key, loop+1);
 	}
 
 	/**
@@ -255,7 +277,7 @@ public class CSVConverter implements IConverter
 	 */
 	private void addToValues(String value, int level, String nodeName)
 	{
-		this.addToValues(value, level, nodeName, null);
+		addToValues(value, level, nodeName, null);
 	}
 
 	/**
@@ -267,9 +289,9 @@ public class CSVConverter implements IConverter
 	 */
 	private void addToValues(String value, int level, String nodeName, String argName)
 	{
-		String key = this.makeKey(level, nodeName, argName);
-		if (this.fields.containsKey(key)) {
-			this.values.put(key, value);
+		String key = makeKey(level, nodeName, argName);
+		if (fields.containsKey(key)) {
+			values.put(key, value);
 		}
 	}
 
@@ -303,7 +325,7 @@ public class CSVConverter implements IConverter
 	 */
 	private void addToFields(int level, String nodeName)
 	{
-		this.addToFields(level, nodeName, "");
+		addToFields(level, nodeName, "");
 	}
 
 	/**
@@ -314,22 +336,22 @@ public class CSVConverter implements IConverter
 	 */
 	private void addToFields(int level, String nodeName, String argName)
 	{
-		if (!this.keepOnlyFieldsNames.isEmpty())
+		if (!keepOnlyFieldsNames.isEmpty())
 		{
-			if (!this.keepOnlyFieldsNames.contains(nodeName)){
+			if (!keepOnlyFieldsNames.contains(nodeName)){
 				return;
 			}
 		} else {
-			if (this.ignoreFieldsNames.contains(nodeName)) {
+			if (ignoreFieldsNames.contains(nodeName)) {
 				return;
 			}
 		}
 
-		String key = this.makeKey(level, nodeName, argName);
-		String name = this.makeKey(null, nodeName, argName);
-		this.fields.put(key, name);
-		this.values.put(key, this.emptyValue);
-		this.levels.put(key, level);
+		String key = makeKey(level, nodeName, argName);
+		String name = makeKey(null, nodeName, argName);
+		fields.put(key, name);
+		values.put(key, emptyValue);
+		levels.put(key, level);
 	}
 
 	/**
@@ -340,13 +362,13 @@ public class CSVConverter implements IConverter
 	private void parseValues(Node node, int level)
 	{
 
-		if (node.getNodeName().equals(this.loopFieldName)) {
-			if (this.gotFirstElement) {
-				this.printMapToResult(values);
-				this.resetValuesInRow(level);
+		if (node.getNodeName().equals(loopFieldName)) {
+			if (gotFirstElement) {
+				printMapToResult(values);
+				resetValuesInRow(level);
 			} else {
-				this.printMapToResult(fields);
-				this.gotFirstElement = true;
+				printMapToResult(fields);
+				gotFirstElement = true;
 			}
 		}
 
@@ -370,7 +392,7 @@ public class CSVConverter implements IConverter
 			if (child instanceof Element)
 			{
 				haselement = true;
-				this.parseValues(child, level+1);
+				parseValues(child, level+1);
 			}
 			else if (child.getNodeName().equals("#text") &&
 					!child.getNodeValue().trim().isEmpty()) {
@@ -380,7 +402,7 @@ public class CSVConverter implements IConverter
 
 		if (!haselement && hastext)
 		{
-			this.addToValues(node.getFirstChild().getNodeValue(), level, node.getNodeName());
+			addToValues(node.getFirstChild().getNodeValue(), level, node.getNodeName());
 		}
 	}
 
@@ -391,14 +413,15 @@ public class CSVConverter implements IConverter
 	{
 		int max = 0;
 		String maxField = null;
-		for (String key : this.loopFields.keySet()) {
-			if (this.loops.get(key) > max) {
-				max = this.loops.get(key);
-				maxField = this.loopFields.get(key);
+		for (String key : loopFields.keySet())
+		{
+			if (loops.get(key) > max) {
+				max = loops.get(key);
+				maxField = loopFields.get(key);
 			}
 			if (max >= 2) break;
 		}
-		this.loopFieldName = maxField;
+		loopFieldName = maxField;
 	}
 
 	/**
@@ -408,9 +431,10 @@ public class CSVConverter implements IConverter
 	 */
 	private void resetValuesInRow (int level)
 	{
-		for (String i : this.levels.keySet()) {
-			if (this.levels.get(i) >= level) {
-				this.values.put(i, this.emptyValue);
+		for (String i : levels.keySet()) {
+			if (levels.get(i) >= level)
+			{
+				values.put(i, emptyValue);
 			}
 		}
 	}
@@ -419,19 +443,26 @@ public class CSVConverter implements IConverter
 	 * Print row data to result
 	 * @param map
 	 */
-	private void printMapToResult (Map<String, String> map)
+	private void printMapToResult(Map<String, String> map)
 	{
-		if (this.distinct) {
-			if (previousValues.contains(map.hashCode())) {
+		if (distinct)
+		{
+			if (previousValues.contains(map.hashCode()))
+			{
 				return;
 			}
 			previousValues.add(map.hashCode());
 		}
+		
+		System.out.println("result => " + result);
+		
 		Iterator<String> iter =  map.values().iterator();
-		while (iter.hasNext()) {
-			result += iter.next().replace(this.separator, " ");
-			if (iter.hasNext()) {
-				result += this.separator;
+		while (iter.hasNext())
+		{
+			result += iter.next().replace(separator, " ");
+			if (iter.hasNext())
+			{
+				result += separator;
 			}
 		}
 		result += System.getProperty("line.separator");
