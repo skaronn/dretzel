@@ -1,0 +1,2078 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0",
+    "title": "onmouv API"
+  },
+  "host": "onmouv.com",
+  "basePath": "/index.php/wp-json",
+  "schemes": [
+    "http"
+  ],
+  "consumes": [
+    "multipart/form-data"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/jwt-auth/v1/token": {
+      "post": {
+        "parameters": [
+          {
+            "name": "username",
+            "type": "string",
+            "in": "formData",
+            "description": "The user name for authorization."
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "in": "formData",
+            "description": "The user password for authorization."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/authorization"
+            }
+          },
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/authorization"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "PostJwt-authV1Token"
+      }
+    },
+    "/wp/v2/users/register": {
+      "post": {
+        "parameters": [
+          {
+            "name": "username",
+            "type": "string",
+            "in": "formData",
+            "description": "The user name for the subscriber."
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "in": "formData",
+            "description": "The email for the subscriber."
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "in": "formData",
+            "description": "The password for the subscriber."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/subscriber"
+            }
+          },
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/subscriber"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "PostWpV2UsersRegister"
+      }
+    },
+    "/wp/v2/users/lostpassword": {
+      "post": {
+        "parameters": [
+          {
+            "name": "user_login",
+            "type": "string",
+            "in": "formData",
+            "description": "Unique identifier for the object."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/userlogin"
+            }
+          },
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/userlogin"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "PostWpV2UsersLostpassword"
+      }
+    },
+    "/wp/v2/tribe_events": {
+      "get": {
+        "parameters": [
+          {
+            "name": "context",
+            "type": "string",
+            "in": "query",
+            "description": "Le contexte dans lequel la requête est faite ; cela détermine les champs renvoyés.",
+            "default": "view",
+            "enum": [
+              "view",
+              "embed",
+              "edit"
+            ]
+          },
+          {
+            "name": "page",
+            "type": "integer",
+            "in": "query",
+            "description": "Page courante dans la collection.",
+            "default": 1,
+            "minimum": 1,
+            "format": "number"
+          },
+          {
+            "name": "per_page",
+            "type": "integer",
+            "in": "query",
+            "description": "Nombre maximal d’éléments à renvoyer dans le groupe de résultats.",
+            "default": 10,
+            "minimum": 1,
+            "format": "number",
+            "maximum": 100
+          },
+          {
+            "name": "search",
+            "type": "string",
+            "in": "query",
+            "description": "Limiter les résultats à ceux qui correspondent à une chaîne de caractères."
+          },
+          {
+            "name": "after",
+            "type": "string",
+            "in": "query",
+            "description": "Limiter la réponse aux publications mises en ligne après une date définie et conforme à la norme ISO8601.",
+            "format": "date-time"
+          },
+          {
+            "name": "author",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter les résultats aux publications assignées à des auteurs spécifiques.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "author_exclude",
+            "type": "array",
+            "in": "query",
+            "description": "S’assurer que le jeu de résultats exclut les publications assignées à des auteurs spécifiques.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "type": "string",
+            "in": "query",
+            "description": "Limiter la réponse aux publications mises en ligne avant une date définie et conforme à la norme ISO8601.",
+            "format": "date-time"
+          },
+          {
+            "name": "exclude",
+            "type": "array",
+            "in": "query",
+            "description": "S’assure que le jeu de résultats exclut des ID spécifiques.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le groupe de résultats aux ID spécifiés.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "type": "integer",
+            "in": "query",
+            "description": "Ignorer un nombre spécifique d’éléments au sein du jeu de résultats."
+          },
+          {
+            "name": "order",
+            "type": "string",
+            "in": "query",
+            "description": "Le paramètre order trie les attributs dans l’ordre croissant ou décroissant.",
+            "default": "desc",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "orderby",
+            "type": "string",
+            "in": "query",
+            "description": "Trier la collection par attribut d’objet.",
+            "default": "date",
+            "enum": [
+              "author",
+              "date",
+              "id",
+              "include",
+              "modified",
+              "parent",
+              "relevance",
+              "slug",
+              "include_slugs",
+              "title"
+            ]
+          },
+          {
+            "name": "slug",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le jeu de résultats aux publications ayant au moins un slug particulier.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le jeu de résultats aux publications associées à un ou plusieurs états.",
+            "default": "publish",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le jeu de résultats aux éléments qui ont le terme spécifié assigné dans la taxonomie tags.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags_exclude",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le jeu de résultats à tous les éléments sauf ceux qui ont un terme spécifique assigné à la taxonomie tags.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tribe_events_cat",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le jeu de résultats aux éléments qui ont le terme spécifié assigné dans la taxonomie tribe_events_cat.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tribe_events_cat_exclude",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le jeu de résultats à tous les éléments sauf ceux qui ont un terme spécifique assigné à la taxonomie tribe_events_cat.",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/tribe_events"
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "GetWpV2Tribe_events"
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "date",
+            "type": "string",
+            "in": "formData",
+            "description": "La date à laquelle l’objet a été publié, dans le fuseau horaire du site.",
+            "format": "date-time"
+          },
+          {
+            "name": "date_gmt",
+            "type": "string",
+            "in": "formData",
+            "description": "La date à laquelle l’objet a été publié, au format GMT.",
+            "format": "date-time"
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "in": "formData",
+            "description": "Un identificateur alphanumérique pour l’objet unique de son type."
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "in": "formData",
+            "description": "Un état nommé pour l’objet.",
+            "enum": [
+              "publish",
+              "future",
+              "draft",
+              "pending",
+              "private",
+              "acf-disabled",
+              "tribe-ea-success",
+              "tribe-ea-failed",
+              "tribe-ea-schedule",
+              "tribe-ea-pending",
+              "tribe-ea-draft",
+              "tribe-ignored"
+            ]
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "in": "formData",
+            "description": "Un mot de passe pour protéger l’accès au contenu et à l’extrait."
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "in": "formData",
+            "description": "Le titre pour l’objet."
+          },
+          {
+            "name": "content",
+            "type": "string",
+            "in": "formData",
+            "description": "Le contenu pour cet objet."
+          },
+          {
+            "name": "author",
+            "type": "integer",
+            "in": "formData",
+            "description": "L’ID pour l’auteur de l’objet."
+          },
+          {
+            "name": "excerpt",
+            "type": "string",
+            "in": "formData",
+            "description": "L’extrait pour l’objet."
+          },
+          {
+            "name": "featured_media",
+            "type": "integer",
+            "in": "formData",
+            "description": "L’ID du média mis en avant pour l’objet."
+          },
+          {
+            "name": "comment_status",
+            "type": "string",
+            "in": "formData",
+            "description": "Définit si les commentaires sont ouverts ou non pour cet objet.",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          {
+            "name": "ping_status",
+            "type": "string",
+            "in": "formData",
+            "description": "Définit si l’objet peut recevoir un ping ou non.",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          {
+            "name": "meta",
+            "type": "string",
+            "in": "formData",
+            "description": "Champs métas."
+          },
+          {
+            "name": "template",
+            "type": "string",
+            "in": "formData",
+            "description": "Le fichier de thème à utiliser pour afficher l’objet."
+          },
+          {
+            "name": "tags",
+            "type": "array",
+            "in": "formData",
+            "description": "Les termes assignés à l’objet dans la taxonomie post_tag.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tribe_events_cat",
+            "type": "array",
+            "in": "formData",
+            "description": "Les termes assignés à l’objet dans la taxonomie tribe_events_cat.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "acf",
+            "type": "string",
+            "in": "formData",
+            "description": "Expose advanced custom fields."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events"
+            }
+          },
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "PostWpV2Tribe_events"
+      }
+    },
+    "/wp/v2/tribe_events/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "query",
+            "description": "Identifiant unique de l’objet."
+          },
+          {
+            "name": "context",
+            "type": "string",
+            "in": "query",
+            "description": "Le contexte dans lequel la requête est faite ; cela détermine les champs renvoyés.",
+            "default": "view",
+            "enum": [
+              "view",
+              "embed",
+              "edit"
+            ]
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "in": "query",
+            "description": "Le mot de passe pour cette publication, si celle-ci est protégée par un mot de passe."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "GetWpV2Tribe_eventsById"
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "formData",
+            "description": "Identifiant unique de l’objet."
+          },
+          {
+            "name": "date",
+            "type": "string",
+            "in": "formData",
+            "description": "La date à laquelle l’objet a été publié, dans le fuseau horaire du site.",
+            "format": "date-time"
+          },
+          {
+            "name": "date_gmt",
+            "type": "string",
+            "in": "formData",
+            "description": "La date à laquelle l’objet a été publié, au format GMT.",
+            "format": "date-time"
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "in": "formData",
+            "description": "Un identificateur alphanumérique pour l’objet unique de son type."
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "in": "formData",
+            "description": "Un état nommé pour l’objet.",
+            "enum": [
+              "publish",
+              "future",
+              "draft",
+              "pending",
+              "private",
+              "acf-disabled",
+              "tribe-ea-success",
+              "tribe-ea-failed",
+              "tribe-ea-schedule",
+              "tribe-ea-pending",
+              "tribe-ea-draft",
+              "tribe-ignored"
+            ]
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "in": "formData",
+            "description": "Un mot de passe pour protéger l’accès au contenu et à l’extrait."
+          },
+          {
+            "name": "title",
+            "type": "string",
+            "in": "formData",
+            "description": "Le titre pour l’objet."
+          },
+          {
+            "name": "content",
+            "type": "string",
+            "in": "formData",
+            "description": "Le contenu pour cet objet."
+          },
+          {
+            "name": "author",
+            "type": "integer",
+            "in": "formData",
+            "description": "L’ID pour l’auteur de l’objet."
+          },
+          {
+            "name": "excerpt",
+            "type": "string",
+            "in": "formData",
+            "description": "L’extrait pour l’objet."
+          },
+          {
+            "name": "featured_media",
+            "type": "integer",
+            "in": "formData",
+            "description": "L’ID du média mis en avant pour l’objet."
+          },
+          {
+            "name": "comment_status",
+            "type": "string",
+            "in": "formData",
+            "description": "Définit si les commentaires sont ouverts ou non pour cet objet.",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          {
+            "name": "ping_status",
+            "type": "string",
+            "in": "formData",
+            "description": "Définit si l’objet peut recevoir un ping ou non.",
+            "enum": [
+              "open",
+              "closed"
+            ]
+          },
+          {
+            "name": "meta",
+            "type": "string",
+            "in": "formData",
+            "description": "Champs métas."
+          },
+          {
+            "name": "template",
+            "type": "string",
+            "in": "formData",
+            "description": "Le fichier de thème à utiliser pour afficher l’objet."
+          },
+          {
+            "name": "tags",
+            "type": "array",
+            "in": "formData",
+            "description": "Les termes assignés à l’objet dans la taxonomie post_tag.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tribe_events_cat",
+            "type": "array",
+            "in": "formData",
+            "description": "Les termes assignés à l’objet dans la taxonomie tribe_events_cat.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "acf",
+            "type": "string",
+            "in": "formData",
+            "description": "Expose advanced custom fields."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "PostWpV2Tribe_eventsById"
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "query",
+            "description": "Identifiant unique de l’objet."
+          },
+          {
+            "name": "force",
+            "type": "boolean",
+            "in": "query",
+            "description": "Que ce soit pour éviter la corbeille ou forcer la suppression."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "DeleteWpV2Tribe_eventsById"
+      }
+    },
+    "/wp/v2/tribe_events_cat": {
+      "get": {
+        "parameters": [
+          {
+            "name": "context",
+            "type": "string",
+            "in": "query",
+            "description": "Le contexte dans lequel la requête est faite ; cela détermine les champs renvoyés.",
+            "default": "view",
+            "enum": [
+              "view",
+              "embed",
+              "edit"
+            ]
+          },
+          {
+            "name": "page",
+            "type": "integer",
+            "in": "query",
+            "description": "Page courante dans la collection.",
+            "default": 1,
+            "minimum": 1,
+            "format": "number"
+          },
+          {
+            "name": "per_page",
+            "type": "integer",
+            "in": "query",
+            "description": "Nombre maximal d’éléments à renvoyer dans le groupe de résultats.",
+            "default": 10,
+            "minimum": 1,
+            "format": "number",
+            "maximum": 100
+          },
+          {
+            "name": "search",
+            "type": "string",
+            "in": "query",
+            "description": "Limiter les résultats à ceux qui correspondent à une chaîne de caractères."
+          },
+          {
+            "name": "exclude",
+            "type": "array",
+            "in": "query",
+            "description": "S’assure que le jeu de résultats exclut des ID spécifiques.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le groupe de résultats aux ID spécifiés.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "type": "string",
+            "in": "query",
+            "description": "Le paramètre order trie les attributs dans l’ordre croissant ou décroissant.",
+            "default": "asc",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "orderby",
+            "type": "string",
+            "in": "query",
+            "description": "Trier la collection par attributs de terme.",
+            "default": "name",
+            "enum": [
+              "id",
+              "include",
+              "name",
+              "slug",
+              "include_slugs",
+              "term_group",
+              "description",
+              "count"
+            ]
+          },
+          {
+            "name": "hide_empty",
+            "type": "boolean",
+            "in": "query",
+            "description": "Pour masquer des termes non affectées à des publications ou non."
+          },
+          {
+            "name": "parent",
+            "type": "integer",
+            "in": "query",
+            "description": "Résultats limités aux termes ayant un parent spécifique."
+          },
+          {
+            "name": "post",
+            "type": "integer",
+            "in": "query",
+            "description": "Limiter le résultat aux termes assignés à une publication spécifique."
+          },
+          {
+            "name": "slug",
+            "type": "array",
+            "in": "query",
+            "description": "Limiter le jeu de résultats aux termes ayant un ou plusieurs identifiants spécifiques.",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/tribe_events_cat"
+              }
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "GetWpV2Tribe_events_cat"
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "description",
+            "type": "string",
+            "in": "formData",
+            "description": "Description HTML du terme."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "in": "formData",
+            "description": "Titre HTML pour le terme.",
+            "required": true
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "in": "formData",
+            "description": "Un identificateur alphanumérique pour le terme, propre au type de la ressource."
+          },
+          {
+            "name": "parent",
+            "type": "integer",
+            "in": "formData",
+            "description": "L’ID du terme parent."
+          },
+          {
+            "name": "meta",
+            "type": "string",
+            "in": "formData",
+            "description": "Champs métas."
+          },
+          {
+            "name": "acf",
+            "type": "string",
+            "in": "formData",
+            "description": "Expose advanced custom fields."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events_cat"
+            }
+          },
+          "201": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events_cat"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "PostWpV2Tribe_events_cat"
+      }
+    },
+    "/wp/v2/tribe_events_cat/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "query",
+            "description": "Identificateur unique pour le terme."
+          },
+          {
+            "name": "context",
+            "type": "string",
+            "in": "query",
+            "description": "Le contexte dans lequel la requête est faite ; cela détermine les champs renvoyés.",
+            "default": "view",
+            "enum": [
+              "view",
+              "embed",
+              "edit"
+            ]
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events_cat"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "GetWpV2Tribe_events_catById"
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "formData",
+            "description": "Identificateur unique pour le terme."
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "in": "formData",
+            "description": "Description HTML du terme."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "in": "formData",
+            "description": "Titre HTML pour le terme."
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "in": "formData",
+            "description": "Un identificateur alphanumérique pour le terme, propre au type de la ressource."
+          },
+          {
+            "name": "parent",
+            "type": "integer",
+            "in": "formData",
+            "description": "L’ID du terme parent."
+          },
+          {
+            "name": "meta",
+            "type": "string",
+            "in": "formData",
+            "description": "Champs métas."
+          },
+          {
+            "name": "acf",
+            "type": "string",
+            "in": "formData",
+            "description": "Expose advanced custom fields."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events_cat"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "PostWpV2Tribe_events_catById"
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "query",
+            "description": "Identificateur unique pour le terme."
+          },
+          {
+            "name": "force",
+            "type": "boolean",
+            "in": "query",
+            "description": "Nécessite la valeur \"true\", car les termes ne supportent pas la suppression forcée. "
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/tribe_events_cat"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "DeleteWpV2Tribe_events_catById"
+      }
+    },
+    "/wp/v2/users/{id}": {
+      "get": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "query",
+            "description": "Identificateur unique pour l’utilisateur."
+          },
+          {
+            "name": "context",
+            "type": "string",
+            "in": "query",
+            "description": "Le contexte dans lequel la requête est faite ; cela détermine les champs renvoyés.",
+            "default": "view",
+            "enum": [
+              "view",
+              "embed",
+              "edit"
+            ]
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "GetWpV2UsersById"
+      },
+      "post": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "formData",
+            "description": "Identificateur unique pour l’utilisateur."
+          },
+          {
+            "name": "username",
+            "type": "string",
+            "in": "formData",
+            "description": "Nom de connexion pour l’utilisateur."
+          },
+          {
+            "name": "name",
+            "type": "string",
+            "in": "formData",
+            "description": "Nom affiché pour l’utilisateur."
+          },
+          {
+            "name": "first_name",
+            "type": "string",
+            "in": "formData",
+            "description": "Prénom de l’utilisateur."
+          },
+          {
+            "name": "last_name",
+            "type": "string",
+            "in": "formData",
+            "description": "Nom de l’utilisateur."
+          },
+          {
+            "name": "email",
+            "type": "string",
+            "in": "formData",
+            "description": "L’adresse e-mail pour l’utilisateur.",
+            "format": "email"
+          },
+          {
+            "name": "url",
+            "type": "string",
+            "in": "formData",
+            "description": "URL de l’utilisateur.",
+            "format": "uri"
+          },
+          {
+            "name": "description",
+            "type": "string",
+            "in": "formData",
+            "description": "Description de l’utilisateur."
+          },
+          {
+            "name": "locale",
+            "type": "string",
+            "in": "formData",
+            "description": "Langue de l’utilisateur.",
+            "enum": [
+              "",
+              "en_US",
+              "fr_FR"
+            ]
+          },
+          {
+            "name": "nickname",
+            "type": "string",
+            "in": "formData",
+            "description": "Le surnom de l’utilisateur."
+          },
+          {
+            "name": "slug",
+            "type": "string",
+            "in": "formData",
+            "description": "Un identificateur alphanumérique pour l’utilisateur."
+          },
+          {
+            "name": "roles",
+            "type": "array",
+            "in": "formData",
+            "description": "Rôles assignés à l’utilisateur.",
+            "items": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "password",
+            "type": "string",
+            "in": "formData",
+            "description": "Mot de passe pour l’utilisateur (jamais inclus)."
+          },
+          {
+            "name": "meta",
+            "type": "string",
+            "in": "formData",
+            "description": "Champs métas."
+          },
+          {
+            "name": "acf",
+            "type": "string",
+            "in": "formData",
+            "description": "Expose advanced custom fields."
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "PostWpV2UsersById"
+      },
+      "delete": {
+        "parameters": [
+          {
+            "name": "id",
+            "type": "string",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "integer",
+            "in": "query",
+            "description": "Identificateur unique pour l’utilisateur."
+          },
+          {
+            "name": "force",
+            "type": "boolean",
+            "in": "query",
+            "description": "Nécessite la valeur \"true\", car l’utilisateur ne supporte pas la suppression forcée."
+          },
+          {
+            "name": "reassign",
+            "type": "integer",
+            "in": "query",
+            "description": "Réaffectez les publications et les liens de l’utilisateur supprimé à cet ID d’utilisateur.",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/user"
+            }
+          },
+          "default": {
+            "description": "error",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        },
+        "operationId": "DeleteWpV2UsersById"
+      }
+    }
+  },
+  "definitions": {
+    "error": {
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "authorization": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "description": "The user name for authorization.",
+          "type": "string"
+        },
+        "password": {
+          "description": "The user password for authorization.",
+          "type": "string"
+        }
+      }
+    },
+    "subscriber": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "description": "The user name for the subscriber.",
+          "type": "string"
+        },
+        "email": {
+          "description": "The email for the subscriber.",
+          "type": "string"
+        },
+        "password": {
+          "description": "The password for the subscriber.",
+          "type": "string"
+        }
+      }
+    },
+    "userlogin": {
+      "type": "object",
+      "properties": {
+        "user_login": {
+          "description": "User login identifier.",
+          "type": "string"
+        }
+      }
+    },
+    "tribe_events": {
+      "type": "object",
+      "properties": {
+        "date": {
+          "description": "La date à laquelle l’objet a été publié, dans le fuseau horaire du site.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "date_gmt": {
+          "description": "La date à laquelle l’objet a été publié, au format GMT.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "guid": {
+          "description": "L’identifiant unique global pour cet objet.",
+          "type": "object",
+          "properties": {
+            "raw": {
+              "description": "GUID pour cet objet, tel qu’il existe dans la base de données.",
+              "type": "string"
+            },
+            "rendered": {
+              "description": "GUID pour l’objet, transformé pour l’affichage.",
+              "type": "string"
+            }
+          }
+        },
+        "id": {
+          "description": "Identifiant unique de l’objet.",
+          "type": "integer"
+        },
+        "link": {
+          "description": "URL de l’objet.",
+          "type": "string",
+          "format": "uri"
+        },
+        "modified": {
+          "description": "La date de dernière modification de l’objet, dans le fuseau horaire du site.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "modified_gmt": {
+          "description": "La dernière date GMT à laquelle l’objet a été modifié.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "slug": {
+          "description": "Un identificateur alphanumérique pour l’objet unique de son type.",
+          "type": "string"
+        },
+        "status": {
+          "description": "Un état nommé pour l’objet.",
+          "type": "string",
+          "enum": [
+            "publish",
+            "future",
+            "draft",
+            "pending",
+            "private",
+            "acf-disabled",
+            "tribe-ea-success",
+            "tribe-ea-failed",
+            "tribe-ea-schedule",
+            "tribe-ea-pending",
+            "tribe-ea-draft",
+            "tribe-ignored"
+          ]
+        },
+        "type": {
+          "description": "Le type de publication de l’objet.",
+          "type": "string"
+        },
+        "password": {
+          "description": "Un mot de passe pour protéger l’accès au contenu et à l’extrait.",
+          "type": "string"
+        },
+        "permalink_template": {
+          "description": "Modèle de permalien pour l’objet.",
+          "type": "string"
+        },
+        "generated_slug": {
+          "description": "Slug automatiquement généré depuis le titre d’objet.",
+          "type": "string"
+        },
+        "title": {
+          "description": "Le titre pour l’objet.",
+          "type": "object",
+          "properties": {
+            "raw": {
+              "description": "Le titre pour l’objet, tel qu’il existe dans la base de données. ",
+              "type": "string"
+            },
+            "rendered": {
+              "description": "Le titre HTML pour l’objet, mis en forme pour l’affichage.",
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "description": "Le contenu pour cet objet.",
+          "type": "object",
+          "properties": {
+            "raw": {
+              "description": "Contenu pour cet objet, tel qu’il existe dans la base de données.",
+              "type": "string"
+            },
+            "rendered": {
+              "description": "Contenu HTML pour l’objet, transformé pour l’affichage.",
+              "type": "string"
+            },
+            "block_version": {
+              "description": "Version du format de bloc de contenu utilisé par l’objet.",
+              "type": "integer"
+            },
+            "protected": {
+              "description": "Définit si le contenu est protégé par mot de passe ou non.",
+              "type": "boolean"
+            }
+          }
+        },
+        "author": {
+          "description": "L’ID pour l’auteur de l’objet.",
+          "type": "integer"
+        },
+        "excerpt": {
+          "description": "L’extrait pour l’objet.",
+          "type": "object",
+          "properties": {
+            "raw": {
+              "description": "L’extrait pour l’objet, tel qu’il existe dans la base de données.",
+              "type": "string"
+            },
+            "rendered": {
+              "description": "Extrait HTML pour l’objet, mis en forme pour l’affichage.",
+              "type": "string"
+            },
+            "protected": {
+              "description": "Définit si l’extrait est protégé par un mot de passe ou non.",
+              "type": "boolean"
+            }
+          }
+        },
+        "featured_media": {
+          "description": "L’ID du média mis en avant pour l’objet.",
+          "type": "integer"
+        },
+        "comment_status": {
+          "description": "Définit si les commentaires sont ouverts ou non pour cet objet.",
+          "type": "string",
+          "enum": [
+            "open",
+            "closed"
+          ]
+        },
+        "ping_status": {
+          "description": "Définit si l’objet peut recevoir un ping ou non.",
+          "type": "string",
+          "enum": [
+            "open",
+            "closed"
+          ]
+        },
+        "meta": {
+          "description": "Champs métas.",
+          "type": "object",
+          "properties": {
+            "_EventAllDay": {
+              "type": "boolean",
+              "description": "",
+              "default": null
+            },
+            "_EventTimezone": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventStartDate": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventEndDate": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventStartDateUTC": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventEndDateUTC": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventShowMap": {
+              "type": "boolean",
+              "description": "",
+              "default": null
+            },
+            "_EventShowMapLink": {
+              "type": "boolean",
+              "description": "",
+              "default": null
+            },
+            "_EventURL": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventCost": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventCostDescription": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventCurrencySymbol": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventCurrencyPosition": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventDateTimeSeparator": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventTimeRangeSeparator": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_EventOrganizerID": {
+              "type": "array",
+              "description": "organisateurs de l’évènement",
+              "default": null,
+              "items": {
+                "type": "string"
+              }
+            },
+            "_EventVenueID": {
+              "type": "integer",
+              "description": "organisateurs de l’évènement",
+              "default": null
+            },
+            "_OrganizerEmail": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_OrganizerPhone": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_OrganizerWebsite": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueAddress": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueCity": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueCountry": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueProvince": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueZip": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenuePhone": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueURL": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueStateProvince": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueLat": {
+              "type": "string",
+              "description": "",
+              "default": null
+            },
+            "_VenueLng": {
+              "type": "string",
+              "description": "",
+              "default": null
+            }
+          }
+        },
+        "template": {
+          "description": "Le fichier de thème à utiliser pour afficher l’objet.",
+          "type": "string"
+        },
+        "tags": {
+          "description": "Les termes assignés à l’objet dans la taxonomie post_tag.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tribe_events_cat": {
+          "description": "Les termes assignés à l’objet dans la taxonomie tribe_events_cat.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "acf": {
+          "description": "Expose advanced custom fields.",
+          "type": "object"
+        }
+      },
+      "links": [
+        {
+          "rel": "https://api.w.org/action-publish",
+          "title": "L’utilisateur actuel peut publier cette publication.",
+          "href": "http://onmouv.com/index.php/wp-json/wp/v2/tribe_events/{id}",
+          "targetSchema": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "publish",
+                  "future"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "rel": "https://api.w.org/action-unfiltered-html",
+          "title": "L’utilisateur actuel peut publier du code HTML et JavaScript sans qu’il soit filtré.",
+          "href": "http://onmouv.com/index.php/wp-json/wp/v2/tribe_events/{id}",
+          "targetSchema": {
+            "type": "object",
+            "properties": {
+              "content": {
+                "raw": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        {
+          "rel": "https://api.w.org/action-assign-author",
+          "title": "L’utilisateur actuel peut changer l’auteur de cette publication.",
+          "href": "http://onmouv.com/index.php/wp-json/wp/v2/tribe_events/{id}",
+          "targetSchema": {
+            "type": "object",
+            "properties": {
+              "author": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        {
+          "rel": "https://api.w.org/action-assign-tags",
+          "title": "L’utilisateur actuel peut assigner des termes dans la taxonomie post_tag.",
+          "href": "http://onmouv.com/index.php/wp-json/wp/v2/tribe_events/{id}",
+          "targetSchema": {
+            "type": "object",
+            "properties": {
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        {
+          "rel": "https://api.w.org/action-create-tags",
+          "title": "L’utilisateur actuel peut créer des termes dans la taxonomie post_tag.",
+          "href": "http://onmouv.com/index.php/wp-json/wp/v2/tribe_events/{id}",
+          "targetSchema": {
+            "type": "object",
+            "properties": {
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        {
+          "rel": "https://api.w.org/action-assign-tribe_events_cat",
+          "title": "L’utilisateur actuel peut assigner des termes dans la taxonomie tribe_events_cat.",
+          "href": "http://onmouv.com/index.php/wp-json/wp/v2/tribe_events/{id}",
+          "targetSchema": {
+            "type": "object",
+            "properties": {
+              "tribe_events_cat": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        {
+          "rel": "https://api.w.org/action-create-tribe_events_cat",
+          "title": "L’utilisateur actuel peut créer des termes dans la taxonomie tribe_events_cat.",
+          "href": "http://onmouv.com/index.php/wp-json/wp/v2/tribe_events/{id}",
+          "targetSchema": {
+            "type": "object",
+            "properties": {
+              "tribe_events_cat": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tribe_events_cat": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Identificateur unique pour le terme.",
+          "type": "integer"
+        },
+        "count": {
+          "description": "Nombre de publications publiées pour le terme.",
+          "type": "integer"
+        },
+        "description": {
+          "description": "Description HTML du terme.",
+          "type": "string"
+        },
+        "link": {
+          "description": "URL du terme.",
+          "type": "string",
+          "format": "uri"
+        },
+        "name": {
+          "description": "Titre HTML pour le terme.",
+          "type": "string"
+        },
+        "slug": {
+          "description": "Un identificateur alphanumérique pour le terme, propre au type de la ressource.",
+          "type": "string"
+        },
+        "taxonomy": {
+          "description": "Type attribué pour le terme.",
+          "type": "string",
+          "enum": [
+            "category",
+            "post_tag",
+            "nav_menu",
+            "link_category",
+            "post_format",
+            "tribe_events_cat"
+          ]
+        },
+        "parent": {
+          "description": "L’ID du terme parent.",
+          "type": "integer"
+        },
+        "meta": {
+          "description": "Champs métas.",
+          "type": "object",
+          "properties": {}
+        },
+        "acf": {
+          "description": "Expose advanced custom fields.",
+          "type": "object"
+        }
+      }
+    },
+    "user": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Identificateur unique pour l’utilisateur.",
+          "type": "integer"
+        },
+        "username": {
+          "description": "Nom de connexion pour l’utilisateur.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Nom affiché pour l’utilisateur.",
+          "type": "string"
+        },
+        "first_name": {
+          "description": "Prénom de l’utilisateur.",
+          "type": "string"
+        },
+        "last_name": {
+          "description": "Nom de l’utilisateur.",
+          "type": "string"
+        },
+        "email": {
+          "description": "L’adresse e-mail pour l’utilisateur.",
+          "type": "string",
+          "format": "email"
+        },
+        "url": {
+          "description": "URL de l’utilisateur.",
+          "type": "string",
+          "format": "uri"
+        },
+        "description": {
+          "description": "Description de l’utilisateur.",
+          "type": "string"
+        },
+        "link": {
+          "description": "URL auteur pour l’utilisateur.",
+          "type": "string",
+          "format": "uri"
+        },
+        "locale": {
+          "description": "Langue de l’utilisateur.",
+          "type": "string",
+          "enum": [
+            "en_US",
+            "fr_FR"
+          ]
+        },
+        "nickname": {
+          "description": "Le surnom de l’utilisateur.",
+          "type": "string"
+        },
+        "slug": {
+          "description": "Un identificateur alphanumérique pour l’utilisateur.",
+          "type": "string"
+        },
+        "registered_date": {
+          "description": "Date d’inscription de l’utilisateur.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "roles": {
+          "description": "Rôles assignés à l’utilisateur.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "password": {
+          "description": "Mot de passe pour l’utilisateur (jamais inclus).",
+          "type": "string"
+        },
+        "capabilities": {
+          "description": "Toutes les permissions affectées à l’utilisateur.",
+          "type": "object"
+        },
+        "extra_capabilities": {
+          "description": "Les permissions supplémentaires affectées à l’utilisateur.",
+          "type": "object"
+        },
+        "avatar_urls": {
+          "description": "URL d’avatar pour l’utilisateur.",
+          "type": "object",
+          "properties": {
+            "24": {
+              "description": "URL d’avatar avec une taille d’image de 24 pixels.",
+              "type": "string",
+              "format": "uri"
+            },
+            "48": {
+              "description": "URL d’avatar avec une taille d’image de 48 pixels.",
+              "type": "string",
+              "format": "uri"
+            },
+            "96": {
+              "description": "URL d’avatar avec une taille d’image de 96 pixels.",
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        },
+        "meta": {
+          "description": "Champs métas.",
+          "type": "object",
+          "properties": {}
+        },
+        "acf": {
+          "description": "Expose advanced custom fields.",
+          "type": "object"
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "cookieAuth": {
+      "type": "apiKey",
+      "name": "X-WP-Nonce",
+      "in": "header",
+      "description": "Please see http://v2.wp-api.org/guide/authentication/"
+    }
+  }
+}
